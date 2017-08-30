@@ -1,7 +1,7 @@
-package com.datawizards.dqm
+package com.datawizards.dqm.validator
 
-import com.datawizards.dqm.model.{FieldRules, InvalidRecord, ValidationResult}
-import com.datawizards.dqm.rules.NotNullRule
+import com.datawizards.dqm.result.{InvalidRecord, ValidationResult}
+import com.datawizards.dqm.rules.{FieldRules, NotNullRule, TableRules}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.scalatest.{FunSuite, Matchers}
@@ -20,14 +20,14 @@ class DataValidatorTest extends FunSuite with Matchers {
       Row("r2.f1", null, "r2.f3"),
       Row(null, "r3.f2", "r3.f3")
     )), schema)
-    val result = DataValidator.validate(input, Seq(
+    val result = DataValidator.validate(input, TableRules(Seq(
       FieldRules(
         field = "f2",
         rules = Seq(
           new NotNullRule()
         )
       )
-    ))
+    )))
     result should equal(ValidationResult(
       invalidRecords = Seq(
         InvalidRecord(

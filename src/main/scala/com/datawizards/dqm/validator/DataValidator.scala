@@ -1,16 +1,18 @@
-package com.datawizards.dqm
+package com.datawizards.dqm.validator
 
-import com.datawizards.dqm.model.{FieldRules, InvalidRecord, ValidationResult}
+import com.datawizards.dqm.result.{InvalidRecord, ValidationResult}
+import com.datawizards.dqm.rules.TableRules
 import org.apache.spark.sql.DataFrame
+
 import scala.util.parsing.json.JSONObject
 
 object DataValidator {
-  def validate(input: DataFrame, rowRules: Seq[FieldRules]): ValidationResult = {
+  def validate(input: DataFrame, tableRules: TableRules): ValidationResult = {
     val spark = input.sparkSession
     import spark.implicits._
 
     val invalidRecords = input.flatMap{row =>
-      rowRules.flatMap{fieldRules => {
+      tableRules.rowRules.flatMap{fieldRules => {
        val field = fieldRules.field
 
        fieldRules

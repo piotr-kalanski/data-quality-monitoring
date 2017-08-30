@@ -1,4 +1,4 @@
-package com.datawizards.dqm.model
+package com.datawizards.dqm.result
 
 case class InvalidRecord(row: String, value: String, rule: String)
 
