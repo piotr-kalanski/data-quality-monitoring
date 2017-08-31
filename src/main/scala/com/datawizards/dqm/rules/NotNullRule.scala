@@ -1,7 +1,7 @@
 package com.datawizards.dqm.rules
 import org.apache.spark.sql.Row
 
-class NotNullRule extends FieldRule {
+object NotNullRule extends FieldRule {
   override def name: String = "NOT NULL"
 
   override def validate(field: String, row: Row): Boolean = {

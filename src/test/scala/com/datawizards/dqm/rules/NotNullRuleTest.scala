@@ -13,7 +13,7 @@ class NotNullRuleTest extends FunSuite with RowBuilder {
         StructField("f3", StringType)
       ))
     )
-    val rule = new NotNullRule()
+    val rule = NotNullRule
     assert(rule.validate("f1", row))
     assert(!rule.validate("f2", row))
     assert(rule.validate("f3", row))

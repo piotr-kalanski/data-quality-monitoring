@@ -33,7 +33,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
             FieldRules(
               field = "f2",
               rules = Seq(
-                new NotNullRule()
+                NotNullRule
               )
             )
           )))

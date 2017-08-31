@@ -29,6 +29,7 @@ developers := List(
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql" % "2.1.1",
   "com.github.piotr-kalanski" %% "es-client" % "0.2.1",
+  "com.typesafe" % "config" % "1.3.0",
   "org.scalatest" %% "scalatest" % "2.2.6" % "test",
   "junit" % "junit" % "4.10" % "test"
 )
