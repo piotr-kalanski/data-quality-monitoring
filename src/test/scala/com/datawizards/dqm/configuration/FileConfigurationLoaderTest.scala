@@ -1,7 +1,7 @@
 package com.datawizards.dqm.configuration
 
 import com.datawizards.dqm.configuration.location.HiveTableLocation
-import com.datawizards.dqm.rules.{FieldRules, MinRule, NotNullRule, TableRules}
+import com.datawizards.dqm.rules.{FieldRules, MinRule, MaxRule, NotNullRule, TableRules}
 import org.scalatest.{FunSuite, Matchers}
 
 class FileConfigurationLoaderTest extends FunSuite with Matchers {
@@ -60,7 +60,7 @@ class FileConfigurationLoaderTest extends FunSuite with Matchers {
                 field = "company_id",
                 rules = Seq(
                   NotNullRule,
-                  MinRule("0")
+                  MaxRule("100")
                 )
               ),
               FieldRules(

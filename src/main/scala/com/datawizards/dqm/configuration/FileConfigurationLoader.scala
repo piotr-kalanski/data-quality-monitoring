@@ -60,6 +60,7 @@ class FileConfigurationLoader(path: String) extends ConfigurationLoader {
     val ruleType = cfg.getString("type")
     if(ruleType == "NotNull") NotNullRule
     else if(ruleType == "min") MinRule(cfg.getString("value"))
+    else if(ruleType == "max") MaxRule(cfg.getString("value"))
     else throw new RuntimeException("Not supported type: " + ruleType)
   }
 }
