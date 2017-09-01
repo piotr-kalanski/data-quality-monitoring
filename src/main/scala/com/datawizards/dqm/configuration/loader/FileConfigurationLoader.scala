@@ -1,10 +1,11 @@
-package com.datawizards.dqm.configuration
+package com.datawizards.dqm.configuration.loader
 
 import java.io.File
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigList, ConfigValue}
 import com.datawizards.dqm.configuration.location._
+import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, TableConfiguration}
 import com.datawizards.dqm.rules._
+import com.typesafe.config.{Config, ConfigFactory, ConfigList, ConfigValue}
 
 import scala.collection.JavaConversions._
 
@@ -61,6 +62,7 @@ class FileConfigurationLoader(path: String) extends ConfigurationLoader {
     if(ruleType == "NotNull") NotNullRule
     else if(ruleType == "min") MinRule(cfg.getString("value"))
     else if(ruleType == "max") MaxRule(cfg.getString("value"))
+    else if(ruleType == "dict") DictionaryRule(cfg.getStringList("values"))
     else throw new RuntimeException("Not supported type: " + ruleType)
   }
 }

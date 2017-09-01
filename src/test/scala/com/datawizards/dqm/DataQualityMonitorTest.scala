@@ -1,8 +1,9 @@
 package com.datawizards.dqm
 
 import com.datawizards.dqm.alert.DevNullAlertSender
+import com.datawizards.dqm.configuration.loader.StaticConfigurationLoader
 import com.datawizards.dqm.configuration.location.StaticTableLocation
-import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, StaticConfigurationLoader, TableConfiguration}
+import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, TableConfiguration}
 import com.datawizards.dqm.logger.StaticValidationResultLogger
 import com.datawizards.dqm.result.{InvalidRecord, ValidationResult}
 import com.datawizards.dqm.rules.{FieldRules, NotNullRule, TableRules}

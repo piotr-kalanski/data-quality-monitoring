@@ -1,7 +1,7 @@
 package com.datawizards.dqm
 
 import com.datawizards.dqm.alert.AlertSender
-import com.datawizards.dqm.configuration.ConfigurationLoader
+import com.datawizards.dqm.configuration.loader.ConfigurationLoader
 import com.datawizards.dqm.logger.ValidationResultLogger
 import com.datawizards.dqm.validator.DataValidator
 

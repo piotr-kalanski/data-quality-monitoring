@@ -1,7 +1,8 @@
 package com.datawizards.dqm.configuration
 
+import com.datawizards.dqm.configuration.loader.FileConfigurationLoader
 import com.datawizards.dqm.configuration.location.HiveTableLocation
-import com.datawizards.dqm.rules.{FieldRules, MinRule, MaxRule, NotNullRule, TableRules}
+import com.datawizards.dqm.rules._
 import org.scalatest.{FunSuite, Matchers}
 
 class FileConfigurationLoaderTest extends FunSuite with Matchers {
@@ -18,6 +19,28 @@ class FileConfigurationLoaderTest extends FunSuite with Matchers {
                 field = "client_id",
                 rules = Seq(
                   NotNullRule
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+    configurationLoader.loadConfiguration() should equal(expectedConfiguration)
+  }
+
+  test("Load configuration from file - dictionary") {
+    val configurationLoader = new FileConfigurationLoader(getClass.getResource("/configuration_simple_dict.conf").getPath)
+    val expectedConfiguration = DataQualityMonitoringConfiguration(
+      tablesConfiguration = Seq(
+        TableConfiguration(
+          location = HiveTableLocation("clients"),
+          rules = TableRules(
+            rowRules = Seq(
+              FieldRules(
+                field = "dict",
+                rules = Seq(
+                  DictionaryRule(Seq("1", "2", "3"))
                 )
               )
             )
