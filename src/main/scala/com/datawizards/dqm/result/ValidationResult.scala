@@ -1,3 +1,9 @@
 package com.datawizards.dqm.result
 
-case class ValidationResult(invalidRecords: Seq[InvalidRecord])
+import com.datawizards.dqm.configuration.location.ColumnStatistics
+
+case class ValidationResult(
+                             invalidRecords: Seq[InvalidRecord],
+                             tableStatistics: TableStatistics,
+                             columnsStatistics: Seq[ColumnStatistics]
+                           )

@@ -31,7 +31,10 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
       InvalidRecord("{c:value}", "value", "NOT NULL")
     )
     logger.log(ValidationResult(
-      invalidRecords = invalidRecords
+      invalidRecords = invalidRecords,
+      null,
+      null
+      // TODO - add additional fields
     ))
     val result = selectTable[InvalidRecord](connection, "INVALID_RECORDS")._1
     connection.close()

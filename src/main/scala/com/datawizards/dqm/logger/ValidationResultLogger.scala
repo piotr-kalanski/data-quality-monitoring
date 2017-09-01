@@ -9,4 +9,6 @@ trait ValidationResultLogger {
   }
 
   protected def logInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit
+
+  // TODO - add logging table and column statistics
 }

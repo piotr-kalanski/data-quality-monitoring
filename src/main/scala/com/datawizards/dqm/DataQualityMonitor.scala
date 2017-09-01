@@ -11,7 +11,7 @@ object DataQualityMonitor {
     rules
       .tablesConfiguration
       .foreach{tc =>
-        val result = DataValidator.validate(tc.location.load(), tc.rules)
+        val result = DataValidator.validate(tc.location, tc.rules)
         validationResultLogger.log(result)
         alertSender.send(result)
       }

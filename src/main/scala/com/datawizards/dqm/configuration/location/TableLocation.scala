@@ -4,4 +4,5 @@ import org.apache.spark.sql.DataFrame
 
 trait TableLocation {
   def load(): DataFrame
+  def tableName: String
 }

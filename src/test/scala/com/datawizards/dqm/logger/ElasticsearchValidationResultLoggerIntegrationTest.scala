@@ -27,7 +27,10 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
       InvalidRecord("{c:value}", "value", "NOT NULL")
     )
     logger.log(ValidationResult(
-      invalidRecords = invalidRecords
+      invalidRecords = invalidRecords,
+      null,
+      null
+      // TODO - add additional fields
     ))
     Thread.sleep(1000L)
     val results = repository.search[InvalidRecord](indexName)

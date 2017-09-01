@@ -4,4 +4,5 @@ import org.apache.spark.sql.DataFrame
 
 case class HiveTableLocation(table: String) extends TableLocation {
   override def load(): DataFrame = ???
+  override def tableName: String = table
 }
