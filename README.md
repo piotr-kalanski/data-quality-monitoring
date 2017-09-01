@@ -10,6 +10,11 @@ Data Quality Monitoring Tool for Big Data implemented using Spark
 
 - [Goals](#goals)
 - [Getting started](#getting-started)
+- [Data quality monitoring process](#data-quality-monitoring-process)
+  - [Load configuration](#load-configuration)
+    - [Load configuration from file](#load-configuration-from-file)
+  - [Log validation results](#log-validation-results)
+  - [Send alerts](#send-alerts)
 
 # Goals
 
@@ -34,3 +39,78 @@ or
     <version>0.1.0</version>
 </dependency>
 ```
+
+# Data quality monitoring process
+
+Data quality monitoring process consists from below steps:
+- Load configuration with business rules
+- Run data validation
+- Log validation results
+- Send alerts
+
+## Load configuration
+
+Configuration can be loaded from:
+- file
+
+Additionally there are plans to support:
+- directory
+- RDBMS
+- Dynamo DB
+
+### Load configuration from file
+
+Example configuration:
+```json
+tablesConfiguration = [
+  {
+    location = {type = Hive, table = clients},
+    rules = {
+      rowRules = [
+        {
+          field = client_id,
+          rules = [
+            {type = NotNull},
+            {type = min, value = 0}
+          ]
+        },
+        {
+          field = client_name,
+          rules = [
+            {type = NotNull}
+          ]
+        }
+      ]
+    }
+  },
+  {
+    location = {type = Hive, table = companies},
+    rules = {
+      rowRules = [
+        {
+          field = company_id,
+          rules = [
+            {type = NotNull},
+            {type = max, value = 100}
+          ]
+        },
+        {
+          field = company_name,
+          rules = [
+            {type = NotNull}
+          ]
+        }
+      ]
+    }
+  }
+]
+```
+
+## Log validation results
+
+## Send alerts
+
+Alerts can be send to:
+- Slack
+- email
+
