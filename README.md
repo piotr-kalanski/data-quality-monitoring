@@ -108,6 +108,10 @@ tablesConfiguration = [
 
 ## Log validation results
 
+Validation results can be logged into:
+- Elasticsearch using class ```ElasticsearchValidationResultLogger```
+- RDBMS using class ```DatabaseValidationResultLogger```
+
 ## Send alerts
 
 Alerts can be send to:

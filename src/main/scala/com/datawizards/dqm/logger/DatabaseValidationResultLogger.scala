@@ -3,12 +3,14 @@ package com.datawizards.dqm.logger
 import java.sql.DriverManager
 import java.util.Properties
 
-import com.datawizards.dqm.result.InvalidRecord
+import com.datawizards.dqm.result.{InvalidRecord, TableStatistics}
 import com.datawizards.class2jdbc._
+import com.datawizards.dqm.configuration.location.ColumnStatistics
 
 /**
-  * Expected DB schema for invalidRecordsTableName:
+  * Validation results logger saving result in RDBMS
   *
+  * Expected DB schema for invalidRecordsTableName:
   * <pre>
   *   CREATE TABLE INVALID_RECORDS(
   *     row VARCHAR,
@@ -17,19 +19,63 @@ import com.datawizards.class2jdbc._
   *   )
   * </pre>
   *
-  * @param driverClassName
-  * @param dbUrl
-  * @param connectionProperties
-  * @param invalidRecordsTableName
+  * Expected DB schema for tableStatisticsTableName:
+  * <pre>
+  *   CREATE TABLE TABLE_STATISTICS(
+  *     tableName VARCHAR,
+  *     rowsCount INTEGER,
+  *     columnsCount INTEGER
+  *   )
+  * </pre>
+  *
+  * Expected DB schema for COLUMN_STATISTICS:
+  * <pre>
+  *   CREATE TABLE COLUMN_STATISTICS(
+  *     tableName VARCHAR,
+  *     columnName VARCHAR,
+  *     columnType VARCHAR,
+  *     notMissingCount INTEGER,
+  *     rowsCount INTEGER,
+  *     percentageNotMissing DOUBLE,
+  *     min DOUBLE,
+  *     max DOUBLE,
+  *     avg DOUBLE,
+  *     stddev DOUBLE
+  *   )
+  * </pre>
+  *
+  * @param driverClassName JDBC driver class name
+  * @param dbUrl DB connection string
+  * @param connectionProperties JDBC connection properties, especially user and password
+  * @param invalidRecordsTableName name of table where to insert invalid records
+  * @param tableStatisticsTableName name of table where to insert table statistics records
+  * @param columnStatisticsTableName name of table where to insert column statistics records
   */
-class DatabaseValidationResultLogger(driverClassName: String, dbUrl: String, connectionProperties: Properties, invalidRecordsTableName: String) extends ValidationResultLogger {
+class DatabaseValidationResultLogger(
+                                      driverClassName: String,
+                                      dbUrl: String,
+                                      connectionProperties: Properties,
+                                      invalidRecordsTableName: String,
+                                      tableStatisticsTableName: String,
+                                      columnStatisticsTableName: String
+                                    ) extends ValidationResultLogger {
 
   override protected def logInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit = {
+    executeInserts(generateInserts(invalidRecords, invalidRecordsTableName))
+  }
+
+  override protected def logTableStatistics(tableStatistics: TableStatistics): Unit = {
+    executeInserts(generateInserts(Seq(tableStatistics), tableStatisticsTableName))
+  }
+
+  override protected def logColumnStatistics(columnsStatistics: Seq[ColumnStatistics]): Unit = {
+    executeInserts(generateInserts(columnsStatistics, columnStatisticsTableName))
+  }
+
+  private def executeInserts(inserts: Traversable[String]): Unit = {
     Class.forName(driverClassName)
     val connection = DriverManager.getConnection(dbUrl, connectionProperties)
-    val inserts = generateInserts(invalidRecords, invalidRecordsTableName)
     connection.createStatement().execute(inserts.mkString(";"))
     connection.close()
   }
-
 }

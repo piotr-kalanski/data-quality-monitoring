@@ -1,6 +1,7 @@
 package com.datawizards.dqm.logger
 
-import com.datawizards.dqm.result.{InvalidRecord, ValidationResult}
+import com.datawizards.dqm.configuration.location.ColumnStatistics
+import com.datawizards.dqm.result.{InvalidRecord, TableStatistics, ValidationResult}
 import com.datawizards.esclient.repository.ElasticsearchRepositoryImpl
 import org.scalatest.{FunSuite, Matchers}
 
@@ -8,34 +9,66 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
 
   private val esUrl = "http://localhost:9200"
   private val repository = new ElasticsearchRepositoryImpl(esUrl)
-  private val indexName = "invalid_records"
-  private val logger = new ElasticsearchValidationResultLogger(esUrl, indexName: String)
+  private val invalidRecordsIndexName = "invalid_records"
+  private val tableStatisticsIndexName = "table_statistics"
+  private val columnStatisticsIndexName = "column_statistics"
+  private val logger = new ElasticsearchValidationResultLogger(esUrl, invalidRecordsIndexName, tableStatisticsIndexName, columnStatisticsIndexName)
 
   test("Elasticsearch logger integration tests") {
     // Run integration tests if Elasticsearch cluster is running
     if(repository.status()) {
-      invalidRecordsTest()
+      runTest()
     }
     else {
       println("Elasticsearch instance not running!")
     }
   }
 
-  private def invalidRecordsTest(): Unit = {
-    repository.deleteIndexIfNotExists(indexName)
+  private def runTest(): Unit = {
+    repository.deleteIndexIfNotExists(invalidRecordsIndexName)
+    repository.deleteIndexIfNotExists(tableStatisticsIndexName)
+    repository.deleteIndexIfNotExists(columnStatisticsIndexName)
     val invalidRecords = Seq(
       InvalidRecord("{c:value}", "value", "NOT NULL")
     )
+    val tableStatistics = TableStatistics(
+      tableName = "t1",
+      rowsCount = 5,
+      columnsCount = 3
+    )
+    val columnsStatistics = Seq(
+      ColumnStatistics(
+        tableName = "t1",
+        columnName = "c1",
+        columnType = "StringType",
+        notMissingCount = 10,
+        rowsCount = 20,
+        percentageNotMissing = 50.0
+      ),
+      ColumnStatistics(
+        tableName = "t1",
+        columnName = "c2",
+        columnType = "IntType",
+        notMissingCount = 30,
+        rowsCount = 50,
+        percentageNotMissing = 60.0
+      )
+    )
     logger.log(ValidationResult(
       invalidRecords = invalidRecords,
-      null,
-      null
-      // TODO - add additional fields
+      tableStatistics = tableStatistics,
+      columnsStatistics = columnsStatistics
     ))
     Thread.sleep(1000L)
-    val results = repository.search[InvalidRecord](indexName)
-    results.total should equal(invalidRecords.size)
-    results.hits should equal(invalidRecords)
+
+    val resultInvalidRecords = repository.search[InvalidRecord](invalidRecordsIndexName)
+    resultInvalidRecords.hits should equal(invalidRecords)
+
+    val resultTableStatistics = repository.search[TableStatistics](tableStatisticsIndexName)
+    resultTableStatistics.hits should equal(Seq(tableStatistics))
+
+    val resultColumnStatistics = repository.search[ColumnStatistics](columnStatisticsIndexName)
+    resultColumnStatistics.hits should equal(columnsStatistics)
   }
 
 }

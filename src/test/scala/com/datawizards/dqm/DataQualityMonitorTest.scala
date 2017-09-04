@@ -62,7 +62,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
         ColumnStatistics(
           tableName = "table",
           columnName = "f1",
-          columnType = "String",
+          columnType = "StringType",
           notMissingCount = 2L,
           rowsCount = 3L,
           percentageNotMissing = 2.0/3.0
@@ -70,7 +70,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
         ColumnStatistics(
           tableName = "table",
           columnName = "f2",
-          columnType = "String",
+          columnType = "StringType",
           notMissingCount = 2L,
           rowsCount = 3L,
           percentageNotMissing = 2.0/3.0
@@ -78,7 +78,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
         ColumnStatistics(
           tableName = "table",
           columnName = "f3",
-          columnType = "String",
+          columnType = "StringType",
           notMissingCount = 2L,
           rowsCount = 3L,
           percentageNotMissing = 2.0/3.0
