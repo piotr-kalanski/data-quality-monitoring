@@ -3,8 +3,7 @@ package com.datawizards.dqm.logger
 import java.sql.DriverManager
 import java.util.Properties
 
-import com.datawizards.dqm.configuration.location.ColumnStatistics
-import com.datawizards.dqm.result.{InvalidRecord, TableStatistics, ValidationResult}
+import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
 import com.datawizards.jdbc2class._
 import org.scalatest.{FunSuite, Matchers}
 
@@ -16,6 +15,7 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
     val connection = DriverManager.getConnection(connectionString, "", "")
     connection.createStatement().execute(
       """CREATE TABLE INVALID_RECORDS(
+        |   tableName VARCHAR,
         |   row VARCHAR,
         |   value VARCHAR,
         |   rule VARCHAR
@@ -49,7 +49,7 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
       columnStatisticsTableName = "COLUMN_STATISTICS"
     )
     val invalidRecords = Seq(
-      InvalidRecord("{c:value}", "value", "NOT NULL")
+      InvalidRecord("table", "{c:value}", "value", "NOT NULL")
     )
     val tableStatistics = TableStatistics(
       tableName = "t1",

@@ -1,7 +1,6 @@
 package com.datawizards.dqm.logger
 
-import com.datawizards.dqm.configuration.location.ColumnStatistics
-import com.datawizards.dqm.result.{InvalidRecord, TableStatistics, ValidationResult}
+import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
 import com.datawizards.esclient.repository.ElasticsearchRepositoryImpl
 import org.scalatest.{FunSuite, Matchers}
 
@@ -29,7 +28,7 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
     repository.deleteIndexIfNotExists(tableStatisticsIndexName)
     repository.deleteIndexIfNotExists(columnStatisticsIndexName)
     val invalidRecords = Seq(
-      InvalidRecord("{c:value}", "value", "NOT NULL")
+      InvalidRecord("table", "{c:value}", "value", "NOT NULL")
     )
     val tableStatistics = TableStatistics(
       tableName = "t1",

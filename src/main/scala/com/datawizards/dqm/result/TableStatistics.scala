@@ -1,7 +1,5 @@
 package com.datawizards.dqm.result
 
-import java.util.Date
-
 case class TableStatistics (
                              tableName: String,
                              rowsCount: Long,

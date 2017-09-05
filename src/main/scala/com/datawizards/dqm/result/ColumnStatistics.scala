@@ -1,6 +1,4 @@
-package com.datawizards.dqm.configuration.location
-
-import java.util.Date
+package com.datawizards.dqm.result
 
 case class ColumnStatistics (
                               tableName: String,

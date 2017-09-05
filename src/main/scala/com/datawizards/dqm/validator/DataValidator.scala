@@ -1,7 +1,7 @@
 package com.datawizards.dqm.validator
 
-import com.datawizards.dqm.configuration.location.{ColumnStatistics, TableLocation}
-import com.datawizards.dqm.result.{InvalidRecord, TableStatistics, ValidationResult}
+import com.datawizards.dqm.configuration.location.TableLocation
+import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
 import com.datawizards.dqm.rules.TableRules
 import org.apache.spark.sql.functions.{avg, count, max, min, stddev}
 import org.apache.spark.sql.types._
@@ -19,13 +19,13 @@ object DataValidator {
     val rowsCount = calculateRowsCount(aggregate)
     val tableName = tableLocation.tableName
     ValidationResult(
-      invalidRecords = calculateInvalidRecords(df, tableRules),
+      invalidRecords = calculateInvalidRecords(df, tableName, tableRules),
       tableStatistics = calculateTableStatistics(df, tableName, rowsCount),
       columnsStatistics = calculateColumnStatistics(tableName, rowsCount, fields, aggregate)
     )
   }
 
-  private def calculateInvalidRecords(input: DataFrame, tableRules: TableRules): Array[InvalidRecord] = {
+  private def calculateInvalidRecords(input: DataFrame, tableName: String, tableRules: TableRules): Array[InvalidRecord] = {
     val spark = input.sparkSession
     import spark.implicits._
 
@@ -40,9 +40,10 @@ object DataValidator {
             val fieldValue = row.getAs[Any](field)
             val values = row.getValuesMap[Any](row.schema.fieldNames).mapValues(v => if(v == null) "null" else v)
             InvalidRecord(
-              JSONObject(values).toString(),
-              if(fieldValue == null) "null" else fieldValue.toString,
-              fr.name
+              tableName = tableName,
+              row = JSONObject(values).toString(),
+              value = if(fieldValue == null) "null" else fieldValue.toString,
+              rule = fr.name
             )
           }
       }}

@@ -1,4 +1,9 @@
 package com.datawizards.dqm.result
 
-case class InvalidRecord(row: String, value: String, rule: String)
+case class InvalidRecord(
+                          tableName: String,
+                          row: String,
+                          value: String,
+                          rule: String
+                        )
 

@@ -3,9 +3,8 @@ package com.datawizards.dqm.logger
 import java.sql.DriverManager
 import java.util.Properties
 
-import com.datawizards.dqm.result.{InvalidRecord, TableStatistics}
+import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics}
 import com.datawizards.class2jdbc._
-import com.datawizards.dqm.configuration.location.ColumnStatistics
 
 /**
   * Validation results logger saving result in RDBMS
@@ -13,6 +12,7 @@ import com.datawizards.dqm.configuration.location.ColumnStatistics
   * Expected DB schema for invalidRecordsTableName:
   * <pre>
   *   CREATE TABLE INVALID_RECORDS(
+  *     tableName VARCHAR,
   *     row VARCHAR,
   *     value VARCHAR,
   *     rule VARCHAR

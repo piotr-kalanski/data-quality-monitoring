@@ -1,7 +1,7 @@
 package com.datawizards.dqm.validator
 
-import com.datawizards.dqm.configuration.location.{ColumnStatistics, StaticTableLocation}
-import com.datawizards.dqm.result.{InvalidRecord, TableStatistics, ValidationResult}
+import com.datawizards.dqm.configuration.location.StaticTableLocation
+import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
 import com.datawizards.dqm.rules.{FieldRules, NotNullRule, TableRules}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SparkSession}
@@ -33,6 +33,7 @@ class DataValidatorTest extends FunSuite with Matchers {
     result should equal(ValidationResult(
       invalidRecords = Seq(
         InvalidRecord(
+          tableName = "table",
           row = """{"f1" : "r2.f1", "f2" : "null", "f3" : "r2.f3"}""",
           value = "null",
           rule = "NOT NULL"

@@ -2,10 +2,10 @@ package com.datawizards.dqm
 
 import com.datawizards.dqm.alert.DevNullAlertSender
 import com.datawizards.dqm.configuration.loader.StaticConfigurationLoader
-import com.datawizards.dqm.configuration.location.{ColumnStatistics, StaticTableLocation}
+import com.datawizards.dqm.configuration.location.StaticTableLocation
 import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, TableConfiguration}
 import com.datawizards.dqm.logger.StaticValidationResultLogger
-import com.datawizards.dqm.result.{InvalidRecord, TableStatistics, ValidationResult}
+import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
 import com.datawizards.dqm.rules.{FieldRules, NotNullRule, TableRules}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
@@ -48,6 +48,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
     logger.results.head should equal(ValidationResult(
       invalidRecords = Seq(
         InvalidRecord(
+          tableName = "table",
           row = """{"f1" : "r2.f1", "f2" : "null", "f3" : "r2.f3"}""",
           value = "null",
           rule = "NOT NULL"

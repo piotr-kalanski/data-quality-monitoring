@@ -1,7 +1,6 @@
 package com.datawizards.dqm.logger
 
-import com.datawizards.dqm.configuration.location.ColumnStatistics
-import com.datawizards.dqm.result.{InvalidRecord, TableStatistics, ValidationResult}
+import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
 
 import scala.collection.mutable.ListBuffer
 

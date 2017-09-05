@@ -1,7 +1,6 @@
 package com.datawizards.dqm.logger
 
-import com.datawizards.dqm.configuration.location.ColumnStatistics
-import com.datawizards.dqm.result.{InvalidRecord, TableStatistics}
+import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics}
 import com.datawizards.esclient.repository.ElasticsearchRepositoryImpl
 
 /**

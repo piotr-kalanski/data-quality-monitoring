@@ -61,7 +61,7 @@ Additionally there are plans to support:
 ### Load configuration from file
 
 Example configuration:
-```json
+```
 tablesConfiguration = [
   {
     location = {type = Hive, table = clients},
