@@ -19,6 +19,7 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
     connection.createStatement().execute(
       """CREATE TABLE INVALID_RECORDS(
         |   tableName VARCHAR,
+        |   columnName VARCHAR,
         |   row VARCHAR,
         |   value VARCHAR,
         |   rule VARCHAR
@@ -52,7 +53,7 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
       columnStatisticsTableName = "COLUMN_STATISTICS"
     )
     val invalidRecords = Seq(
-      InvalidRecord("table", "{c:value}", "value", "NOT NULL")
+      InvalidRecord("table", "c", "{c:value}", "value", "NOT NULL")
     )
     val tableStatistics = TableStatistics(
       tableName = "t1",

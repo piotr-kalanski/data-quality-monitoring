@@ -41,6 +41,7 @@ object DataValidator {
             val values = row.getValuesMap[Any](row.schema.fieldNames).mapValues(v => if(v == null) "null" else v)
             InvalidRecord(
               tableName = tableName,
+              columnName = field,
               row = JSONObject(values).toString(),
               value = if(fieldValue == null) "null" else fieldValue.toString,
               rule = fr.name

@@ -31,7 +31,7 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
     repository.deleteIndexIfNotExists(tableStatisticsIndexName)
     repository.deleteIndexIfNotExists(columnStatisticsIndexName)
     val invalidRecords = Seq(
-      InvalidRecord("table", "{c:value}", "value", "NOT NULL")
+      InvalidRecord("table", "c", "{c:value}", "value", "NOT NULL")
     )
     val tableStatistics = TableStatistics(
       tableName = "t1",

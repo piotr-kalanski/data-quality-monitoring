@@ -13,6 +13,7 @@ import com.datawizards.class2jdbc._
   * <pre>
   *   CREATE TABLE INVALID_RECORDS(
   *     tableName VARCHAR,
+  *     columnName VARCHAR,
   *     row VARCHAR,
   *     value VARCHAR,
   *     rule VARCHAR

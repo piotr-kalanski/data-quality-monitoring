@@ -37,6 +37,7 @@ class DataValidatorTest extends FunSuite with Matchers {
       invalidRecords = Seq(
         InvalidRecord(
           tableName = "table",
+          columnName = "f2",
           row = """{"f1" : "r2.f1", "f2" : "null", "f3" : "r2.f3"}""",
           value = "null",
           rule = "NOT NULL"
