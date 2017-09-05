@@ -2,13 +2,60 @@ package com.datawizards.dqm.configuration.loader
 
 import java.io.File
 
-import com.datawizards.dqm.configuration.location._
-import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, TableConfiguration}
-import com.datawizards.dqm.rules._
-import com.typesafe.config.{Config, ConfigFactory, ConfigList, ConfigValue}
+import com.datawizards.dqm.configuration.DataQualityMonitoringConfiguration
+import com.typesafe.config.{Config, ConfigFactory}
 
-import scala.collection.JavaConversions._
-
+/**
+  * Loads configuration from file.
+  * <br/>
+  * Expected format:
+  * <pre>
+  *tablesConfiguration = [
+    {
+      location = {type = Hive, table = clients},
+      rules = {
+        rowRules = [
+          {
+            field = client_id,
+            rules = [
+              {type = NotNull},
+              {type = min, value = 0}
+            ]
+          },
+          {
+            field = client_name,
+            rules = [
+              {type = NotNull}
+            ]
+          }
+        ]
+      }
+    },
+    {
+      location = {type = Hive, table = companies},
+      rules = {
+        rowRules = [
+          {
+            field = company_id,
+            rules = [
+              {type = NotNull},
+              {type = max, value = 100}
+            ]
+          },
+          {
+            field = company_name,
+            rules = [
+              {type = NotNull}
+            ]
+          }
+        ]
+      }
+    }
+  ]
+  * <pre>
+  *
+  * @param path configuration file
+  */
 class FileConfigurationLoader(path: String) extends ConfigurationLoader {
 
   override def loadConfiguration(): DataQualityMonitoringConfiguration = {
@@ -21,48 +68,4 @@ class FileConfigurationLoader(path: String) extends ConfigurationLoader {
     DataQualityMonitoringConfiguration(parseTablesConfiguration(tablesConfiguration))
   }
 
-  private def parseTablesConfiguration(tablesConfiguration: ConfigList): Seq[TableConfiguration] = {
-    for(tableConfiguration <- tablesConfiguration)
-      yield parseTableConfiguration(tableConfiguration)
-  }
-
-  private def parseTableConfiguration(tableConfigValue: ConfigValue): TableConfiguration = {
-    val tableConfiguration = tableConfigValue.atKey("table")
-    TableConfiguration(
-      location = parseLocation(tableConfiguration.getConfig("table.location")),
-      rules = parseTableRules(tableConfiguration.getConfig("table.rules"))
-    )
-  }
-
-  private def parseTableRules(tableRules: Config): TableRules = {
-    val rowRulesConfigList = tableRules.getConfigList("rowRules")
-    val rowRules = for(fieldRules <- rowRulesConfigList)
-      yield parseFieldRules(fieldRules)
-    TableRules(rowRules = rowRules)
-  }
-
-  private def parseFieldRules(fieldRules: Config): FieldRules = {
-    val field = fieldRules.getString("field")
-    val rules = for(rule <- fieldRules.getConfigList("rules"))
-      yield parseRule(rule)
-    FieldRules(
-      field = field,
-      rules = rules
-    )
-  }
-
-  private def parseLocation(cfg: Config): TableLocation = {
-    val tableLocationType = cfg.getString("type")
-    if(tableLocationType == "Hive") HiveTableLocation(cfg.getString("table"))
-    else throw new RuntimeException("Not supported type: " + tableLocationType)
-  }
-
-  private def parseRule(cfg: Config): FieldRule = {
-    val ruleType = cfg.getString("type")
-    if(ruleType == "NotNull") NotNullRule
-    else if(ruleType == "min") MinRule(cfg.getString("value"))
-    else if(ruleType == "max") MaxRule(cfg.getString("value"))
-    else if(ruleType == "dict") DictionaryRule(cfg.getStringList("values"))
-    else throw new RuntimeException("Not supported type: " + ruleType)
-  }
 }

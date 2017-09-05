@@ -8,7 +8,7 @@ import com.datawizards.class2jdbc._
 
 /**
   * Validation results logger saving result in RDBMS
-  *
+  * <br/>
   * Expected DB schema for invalidRecordsTableName:
   * <pre>
   *   CREATE TABLE INVALID_RECORDS(
