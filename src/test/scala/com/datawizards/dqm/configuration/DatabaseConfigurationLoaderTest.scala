@@ -6,8 +6,11 @@ import java.util.Properties
 import com.datawizards.dqm.configuration.loader.DatabaseConfigurationLoader
 import com.datawizards.dqm.configuration.location.HiveTableLocation
 import com.datawizards.dqm.rules._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class DatabaseConfigurationLoaderTest extends FunSuite with Matchers {
 
   test("Load configuration from DB - complex") {

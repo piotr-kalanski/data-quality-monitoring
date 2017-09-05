@@ -3,8 +3,11 @@ package com.datawizards.dqm.configuration
 import com.datawizards.dqm.configuration.loader.FileConfigurationLoader
 import com.datawizards.dqm.configuration.location.HiveTableLocation
 import com.datawizards.dqm.rules._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class FileConfigurationLoaderTest extends FunSuite with Matchers {
 
   test("Load configuration from file - simple") {
@@ -29,8 +32,8 @@ class FileConfigurationLoaderTest extends FunSuite with Matchers {
     configurationLoader.loadConfiguration() should equal(expectedConfiguration)
   }
 
-  test("Load configuration from file - dictionary") {
-    val configurationLoader = new FileConfigurationLoader(getClass.getResource("/configuration_simple_dict.conf").getPath)
+  test("Load configuration from file - all rules") {
+    val configurationLoader = new FileConfigurationLoader(getClass.getResource("/configuration_all_rules.conf").getPath)
     val expectedConfiguration = DataQualityMonitoringConfiguration(
       tablesConfiguration = Seq(
         TableConfiguration(
@@ -38,9 +41,13 @@ class FileConfigurationLoaderTest extends FunSuite with Matchers {
           rules = TableRules(
             rowRules = Seq(
               FieldRules(
-                field = "dict",
+                field = "client_id",
                 rules = Seq(
-                  DictionaryRule(Seq("1", "2", "3"))
+                  NotNullRule,
+                  MinRule("0"),
+                  MaxRule("100"),
+                  DictionaryRule(Seq("1", "2", "3")),
+                  RegexRule("""\s.*""")
                 )
               )
             )

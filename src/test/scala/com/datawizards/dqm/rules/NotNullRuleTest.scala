@@ -1,8 +1,11 @@
 package com.datawizards.dqm.rules
 
-import org.apache.spark.sql.types.{StructField, StructType, StringType}
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.junit.runner.RunWith
 import org.scalatest.FunSuite
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class NotNullRuleTest extends FunSuite with RowBuilder {
   test("Validate null") {
     val row = createRow(

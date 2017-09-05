@@ -2,8 +2,11 @@ package com.datawizards.dqm.logger
 
 import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
 import com.datawizards.esclient.repository.ElasticsearchRepositoryImpl
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with Matchers {
 
   private val esUrl = "http://localhost:9200"
@@ -67,7 +70,7 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
     resultTableStatistics.hits should equal(Seq(tableStatistics))
 
     val resultColumnStatistics = repository.search[ColumnStatistics](columnStatisticsIndexName)
-    resultColumnStatistics.hits should equal(columnsStatistics)
+    resultColumnStatistics.hits.toSeq.sortBy(_.columnName) should equal(columnsStatistics)
   }
 
 }

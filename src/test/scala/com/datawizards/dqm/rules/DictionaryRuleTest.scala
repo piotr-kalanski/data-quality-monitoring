@@ -1,8 +1,11 @@
 package com.datawizards.dqm.rules
 
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
+import org.junit.runner.RunWith
 import org.scalatest.FunSuite
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class DictionaryRuleTest extends FunSuite with RowBuilder {
   test("Validate dictionary") {
     val row1 = createRow(

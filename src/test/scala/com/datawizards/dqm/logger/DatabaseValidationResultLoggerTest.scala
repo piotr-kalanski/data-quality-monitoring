@@ -5,8 +5,11 @@ import java.util.Properties
 
 import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
 import com.datawizards.jdbc2class._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
 
   test("Database logger integration tests") {

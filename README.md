@@ -13,6 +13,8 @@ Data Quality Monitoring Tool for Big Data implemented using Spark
 - [Data quality monitoring process](#data-quality-monitoring-process)
   - [Load configuration](#load-configuration)
     - [Load configuration from file](#load-configuration-from-file)
+    - [Load configuration from database](#load-configuration-from-database)
+  - [Validation rules](#validation-rules)
   - [Log validation results](#log-validation-results)
   - [Send alerts](#send-alerts)
 
@@ -52,13 +54,15 @@ Data quality monitoring process consists from below steps:
 
 Configuration can be loaded from:
 - file
+- RDBMS
 
 Additionally there are plans to support:
 - directory
-- RDBMS
 - Dynamo DB
 
 ### Load configuration from file
+
+Use class: ```FileConfigurationLoader```
 
 Example configuration:
 ```
@@ -105,6 +109,21 @@ tablesConfiguration = [
   }
 ]
 ```
+
+### Load configuration from database
+
+Use class: ```DatabaseConfigurationLoader```.
+
+One table row should contain configuration for one table (TableConfiguration).
+
+## Validation rules
+
+Supported validation rules:
+- not null
+- dictionary
+- regex
+- min value
+- max value
 
 ## Log validation results
 

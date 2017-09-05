@@ -63,6 +63,7 @@ trait ConfigurationLoader {
     else if(ruleType == "min") MinRule(cfg.getString("value"))
     else if(ruleType == "max") MaxRule(cfg.getString("value"))
     else if(ruleType == "dict") DictionaryRule(cfg.getStringList("values"))
+    else if(ruleType == "regex") RegexRule(cfg.getString("value"))
     else throw new RuntimeException("Not supported type: " + ruleType)
   }
 

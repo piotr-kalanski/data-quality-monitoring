@@ -9,8 +9,11 @@ import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatist
 import com.datawizards.dqm.rules.{FieldRules, NotNullRule, TableRules}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class DataQualityMonitorTest extends FunSuite with Matchers {
   lazy val spark: SparkSession = SparkSession.builder().master("local").getOrCreate()
 
