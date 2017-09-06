@@ -1,5 +1,7 @@
 package com.datawizards.dqm.logger
 
+import java.sql.Date
+
 import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
 import com.datawizards.esclient.repository.ElasticsearchRepositoryImpl
 import org.junit.runner.RunWith
@@ -31,12 +33,26 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
     repository.deleteIndexIfNotExists(tableStatisticsIndexName)
     repository.deleteIndexIfNotExists(columnStatisticsIndexName)
     val invalidRecords = Seq(
-      InvalidRecord("table", "c", "{c:value}", "value", "NOT NULL")
+      InvalidRecord(
+        "table",
+        "c",
+        "{c:value}",
+        "value",
+        "NOT NULL",
+        2000,
+        1,
+        2,
+        Date.valueOf("2000-01-02")
+      )
     )
     val tableStatistics = TableStatistics(
       tableName = "t1",
       rowsCount = 5,
-      columnsCount = 3
+      columnsCount = 3,
+      year = 2000,
+      month = 1,
+      day = 2,
+      date = Date.valueOf("2000-01-02")
     )
     val columnsStatistics = Seq(
       ColumnStatistics(
@@ -45,7 +61,11 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
         columnType = "StringType",
         notMissingCount = 10,
         rowsCount = 20,
-        percentageNotMissing = 50.0
+        percentageNotMissing = 50.0,
+        year = 2000,
+        month = 1,
+        day = 2,
+        date = Date.valueOf("2000-01-02")
       ),
       ColumnStatistics(
         tableName = "t1",
@@ -53,7 +73,11 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
         columnType = "IntType",
         notMissingCount = 30,
         rowsCount = 50,
-        percentageNotMissing = 60.0
+        percentageNotMissing = 60.0,
+        year = 2000,
+        month = 1,
+        day = 2,
+        date = Date.valueOf("2000-01-02")
       )
     )
     logger.log(ValidationResult(

@@ -2,6 +2,7 @@ package com.datawizards.dqm.configuration
 
 import com.datawizards.dqm.configuration.loader.FileConfigurationLoader
 import com.datawizards.dqm.configuration.location.HiveTableLocation
+import com.datawizards.dqm.filter.FilterByYearMonthDayColumns
 import com.datawizards.dqm.rules._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -64,6 +65,7 @@ class FileConfigurationLoaderTest extends FunSuite with Matchers {
       tablesConfiguration = Seq(
         TableConfiguration(
           location = HiveTableLocation("clients"),
+          filterByProcessingDateStrategy = Some(FilterByYearMonthDayColumns),
           rules = TableRules(
             rowRules = Seq(
               FieldRules(

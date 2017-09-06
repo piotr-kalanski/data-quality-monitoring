@@ -2,8 +2,10 @@ package com.datawizards.dqm.configuration.loader
 
 import com.datawizards.dqm.configuration.location.{HiveTableLocation, TableLocation}
 import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, TableConfiguration}
+import com.datawizards.dqm.filter.{FilterByProcessingDateStrategy, FilterByYearMonthDayColumns}
 import com.datawizards.dqm.rules._
 import com.typesafe.config.{Config, ConfigList, ConfigValue}
+
 import scala.collection.JavaConversions._
 
 trait ConfigurationLoader {
@@ -21,27 +23,29 @@ trait ConfigurationLoader {
 
   protected def parseTableConfiguration(tableConfigValue: ConfigValue): TableConfiguration = {
     val tableConfiguration = tableConfigValue.atKey("table")
-    TableConfiguration(
-      location = parseLocation(tableConfiguration.getConfig("table.location")),
-      rules = parseTableRules(tableConfiguration.getConfig("table.rules"))
-    )
+    parseTableConfiguration(tableConfiguration, "table.location", "table.rules", "table.filter")
   }
 
   protected def parseTableConfiguration(tableConfiguration: Config): TableConfiguration = {
+    parseTableConfiguration(tableConfiguration, "location", "rules", "filter")
+  }
+
+  private def parseTableConfiguration(tableConfiguration: Config, locationPath: String, rulesPath: String, filterPath: String): TableConfiguration = {
     TableConfiguration(
-      location = parseLocation(tableConfiguration.getConfig("location")),
-      rules = parseTableRules(tableConfiguration.getConfig("rules"))
+      location = parseLocation(tableConfiguration.getConfig(locationPath)),
+      rules = parseTableRules(tableConfiguration.getConfig(rulesPath)),
+      filterByProcessingDateStrategy = parseFilterByProcessingDateStrategy(tableConfiguration, filterPath)
     )
   }
 
-  protected def parseTableRules(tableRules: Config): TableRules = {
+  private def parseTableRules(tableRules: Config): TableRules = {
     val rowRulesConfigList = tableRules.getConfigList("rowRules")
     val rowRules = for(fieldRules <- rowRulesConfigList)
       yield parseFieldRules(fieldRules)
     TableRules(rowRules = rowRules)
   }
 
-  protected def parseFieldRules(fieldRules: Config): FieldRules = {
+  private def parseFieldRules(fieldRules: Config): FieldRules = {
     val field = fieldRules.getString("field")
     val rules = for(rule <- fieldRules.getConfigList("rules"))
       yield parseRule(rule)
@@ -51,13 +55,13 @@ trait ConfigurationLoader {
     )
   }
 
-  protected def parseLocation(cfg: Config): TableLocation = {
+  private def parseLocation(cfg: Config): TableLocation = {
     val tableLocationType = cfg.getString("type")
     if(tableLocationType == "Hive") HiveTableLocation(cfg.getString("table"))
     else throw new RuntimeException("Not supported type: " + tableLocationType)
   }
 
-  protected def parseRule(cfg: Config): FieldRule = {
+  private def parseRule(cfg: Config): FieldRule = {
     val ruleType = cfg.getString("type")
     if(ruleType == "NotNull") NotNullRule
     else if(ruleType == "min") MinRule(cfg.getString("value"))
@@ -67,4 +71,13 @@ trait ConfigurationLoader {
     else throw new RuntimeException("Not supported type: " + ruleType)
   }
 
+  private def parseFilterByProcessingDateStrategy(tableConfiguration: Config, filterPath: String): Option[FilterByProcessingDateStrategy] = {
+    if(!tableConfiguration.hasPath(filterPath)) None
+    else {
+      val filterConfig = tableConfiguration.getConfig(filterPath)
+      val filterType = filterConfig.getString("type")
+      if(filterType == "ymd") Some(FilterByYearMonthDayColumns)
+      else throw new RuntimeException("Not supported type: " + filterType)
+    }
+  }
 }

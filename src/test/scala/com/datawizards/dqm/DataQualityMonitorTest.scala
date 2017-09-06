@@ -1,5 +1,8 @@
 package com.datawizards.dqm
 
+import java.sql.Date
+import java.time.LocalDate
+
 import com.datawizards.dqm.alert.DevNullAlertSender
 import com.datawizards.dqm.configuration.loader.StaticConfigurationLoader
 import com.datawizards.dqm.configuration.location.StaticTableLocation
@@ -46,7 +49,8 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
     )
     val logger = new StaticValidationResultLogger()
     val alertSender = DevNullAlertSender
-    DataQualityMonitor.run(configurationLoader, logger, alertSender)
+    val processingDate = Date.valueOf("2000-01-02")
+    DataQualityMonitor.run(processingDate, configurationLoader, logger, alertSender)
 
     logger.results.head should equal(ValidationResult(
       invalidRecords = Seq(
@@ -55,13 +59,21 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           columnName = "f2",
           row = """{"f1" : "r2.f1", "f2" : "null", "f3" : "r2.f3"}""",
           value = "null",
-          rule = "NOT NULL"
+          rule = "NOT NULL",
+          year = 2000,
+          month = 1,
+          day = 2,
+          date = processingDate
         )
       ),
       tableStatistics = TableStatistics(
         tableName = "table",
         rowsCount = 3,
-        columnsCount = 3
+        columnsCount = 3,
+        year = 2000,
+        month = 1,
+        day = 2,
+        date = processingDate
       ),
       columnsStatistics = Seq(
         ColumnStatistics(
@@ -70,7 +82,11 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           columnType = "StringType",
           notMissingCount = 2L,
           rowsCount = 3L,
-          percentageNotMissing = 2.0/3.0
+          percentageNotMissing = 2.0/3.0,
+          year = 2000,
+          month = 1,
+          day = 2,
+          date = processingDate
         ),
         ColumnStatistics(
           tableName = "table",
@@ -78,7 +94,11 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           columnType = "StringType",
           notMissingCount = 2L,
           rowsCount = 3L,
-          percentageNotMissing = 2.0/3.0
+          percentageNotMissing = 2.0/3.0,
+          year = 2000,
+          month = 1,
+          day = 2,
+          date = processingDate
         ),
         ColumnStatistics(
           tableName = "table",
@@ -86,7 +106,11 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           columnType = "StringType",
           notMissingCount = 2L,
           rowsCount = 3L,
-          percentageNotMissing = 2.0/3.0
+          percentageNotMissing = 2.0/3.0,
+          year = 2000,
+          month = 1,
+          day = 2,
+          date = processingDate
         )
       )
     ))

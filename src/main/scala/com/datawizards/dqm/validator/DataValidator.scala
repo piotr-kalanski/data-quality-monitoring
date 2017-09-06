@@ -1,6 +1,8 @@
 package com.datawizards.dqm.validator
 
-import com.datawizards.dqm.configuration.location.TableLocation
+import java.sql.Date
+
+import com.datawizards.dqm.configuration.TableConfiguration
 import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
 import com.datawizards.dqm.rules.TableRules
 import org.apache.spark.sql.functions.{avg, count, max, min, stddev}
@@ -10,22 +12,31 @@ import org.apache.spark.sql.{Column, DataFrame, Row}
 import scala.util.parsing.json.JSONObject
 
 object DataValidator {
+
   private val countColumn = "count"
 
-  def validate(tableLocation: TableLocation, tableRules: TableRules): ValidationResult = {
-    val df = tableLocation.load()
+  def validate(tableConfiguration: TableConfiguration, processingDate: Date): ValidationResult = {
+    val tableLocation = tableConfiguration.location
+    val tableRules = tableConfiguration.rules
+    val filterByProcessingDateStrategy = tableConfiguration.filterByProcessingDateStrategy
+    val input = tableLocation.load()
+    val df = if(filterByProcessingDateStrategy.isDefined) filterByProcessingDateStrategy.get.filter(input, processingDate) else input
     val fields = getDataFrameFields(df)
     val aggregate = aggregateDataFrame(df, fields)
     val rowsCount = calculateRowsCount(aggregate)
     val tableName = tableLocation.tableName
+    val localDate = processingDate.toLocalDate
+    val processingYear = localDate.getYear
+    val processingMonth = localDate.getMonthValue
+    val processingDay = localDate.getDayOfMonth
     ValidationResult(
-      invalidRecords = calculateInvalidRecords(df, tableName, tableRules),
-      tableStatistics = calculateTableStatistics(df, tableName, rowsCount),
-      columnsStatistics = calculateColumnStatistics(tableName, rowsCount, fields, aggregate)
+      invalidRecords = calculateInvalidRecords(df, tableName, tableRules, processingYear, processingMonth, processingDay, processingDate),
+      tableStatistics = calculateTableStatistics(df, tableName, rowsCount, processingYear, processingMonth, processingDay, processingDate),
+      columnsStatistics = calculateColumnStatistics(tableName, rowsCount, fields, aggregate, processingYear, processingMonth, processingDay, processingDate)
     )
   }
 
-  private def calculateInvalidRecords(input: DataFrame, tableName: String, tableRules: TableRules): Array[InvalidRecord] = {
+  private def calculateInvalidRecords(input: DataFrame, tableName: String, tableRules: TableRules, processingYear: Int, processingMonth: Int, processingDay: Int, processingDate: Date): Array[InvalidRecord] = {
     val spark = input.sparkSession
     import spark.implicits._
 
@@ -44,22 +55,26 @@ object DataValidator {
               columnName = field,
               row = JSONObject(values).toString(),
               value = if(fieldValue == null) "null" else fieldValue.toString,
-              rule = fr.name
+              rule = fr.name,
+              year = processingYear,
+              month = processingMonth,
+              day = processingDay,
+              date = processingDate
             )
           }
       }}
     }.collect()
   }
 
-  private def calculateTableStatistics(df: DataFrame, tableName: String, rowsCount: Long): TableStatistics = {
+  private def calculateTableStatistics(df: DataFrame, tableName: String, rowsCount: Long, processingYear: Int, processingMonth: Int, processingDay: Int, processingDate: Date): TableStatistics = {
     TableStatistics(
-      tableName = tableName
-      , rowsCount = rowsCount
-      , columnsCount = calculateColumnsCount(df)
-      /*, year = processingYear
-      , month = processingMonth
-      , day = processingDay
-      , date = processingJavaUtilDate*/
+      tableName = tableName,
+      rowsCount = rowsCount,
+      columnsCount = calculateColumnsCount(df),
+      year = processingYear,
+      month = processingMonth,
+      day = processingDay,
+      date = processingDate
     )
   }
 
@@ -105,7 +120,7 @@ object DataValidator {
   private def calculateRowsCount(aggregate: Row): Long =
     aggregate.getAs[Long](countColumn)
 
-  private def calculateColumnStatistics(tableName: String, rowsCount: Long, fields: Seq[StructField], aggregate: Row): Seq[ColumnStatistics] = {
+  private def calculateColumnStatistics(tableName: String, rowsCount: Long, fields: Seq[StructField], aggregate: Row, processingYear: Int, processingMonth: Int, processingDay: Int, processingDate: Date): Seq[ColumnStatistics] = {
     var columnIndex = -1
 
     fields
@@ -118,20 +133,20 @@ object DataValidator {
         val notMissingCount = aggregate.getAs[Long](countForColumnName(columnName))
 
         ColumnStatistics(
-          tableName = tableName
-          , columnName = columnName
-          , columnType = f.dataType.toString
-          , notMissingCount = notMissingCount
-          , rowsCount = rowsCount
-          , percentageNotMissing = 1.0*notMissingCount/rowsCount
-          , min = min
-          , max = max
-          , avg = getAggregateValueIfNumericField(aggregate, avgForColumnName(columnName), columnType)
-          , stddev = getAggregateValueIfNumericField(aggregate, stdDevForColumnName(columnName), columnType)
-          /*, year = processingYear
-          , month = processingMonth
-          , day = processingDay
-          , date = processingJavaUtilDate*/
+          tableName = tableName,
+          columnName = columnName,
+          columnType = f.dataType.toString,
+          notMissingCount = notMissingCount,
+          rowsCount = rowsCount,
+          percentageNotMissing = 1.0*notMissingCount/rowsCount,
+          min = min,
+          max = max,
+          avg = getAggregateValueIfNumericField(aggregate, avgForColumnName(columnName), columnType),
+          stddev = getAggregateValueIfNumericField(aggregate, stdDevForColumnName(columnName), columnType),
+          year = processingYear,
+          month = processingMonth,
+          day = processingDay,
+          date = processingDate
         )
 
       })

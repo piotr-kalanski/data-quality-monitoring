@@ -16,7 +16,11 @@ import com.datawizards.class2jdbc._
   *     columnName VARCHAR,
   *     row VARCHAR,
   *     value VARCHAR,
-  *     rule VARCHAR
+  *     rule VARCHAR,
+  *     year INTEGER,
+  *     month INTEGER,
+  *     day INTEGER,
+  *     date DATE
   *   )
   * </pre>
   *
@@ -25,7 +29,11 @@ import com.datawizards.class2jdbc._
   *   CREATE TABLE TABLE_STATISTICS(
   *     tableName VARCHAR,
   *     rowsCount INTEGER,
-  *     columnsCount INTEGER
+  *     columnsCount INTEGER,
+  *     year INTEGER,
+  *     month INTEGER,
+  *     day INTEGER,
+  *     date DATE
   *   )
   * </pre>
   *
@@ -41,7 +49,11 @@ import com.datawizards.class2jdbc._
   *     min DOUBLE,
   *     max DOUBLE,
   *     avg DOUBLE,
-  *     stddev DOUBLE
+  *     stddev DOUBLE,
+  *     year INTEGER,
+  *     month INTEGER,
+  *     day INTEGER,
+  *     date DATE
   *   )
   * </pre>
   *
@@ -79,4 +91,5 @@ class DatabaseValidationResultLogger(
     connection.createStatement().execute(inserts.mkString(";"))
     connection.close()
   }
+
 }

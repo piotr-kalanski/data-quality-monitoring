@@ -1,6 +1,6 @@
 package com.datawizards.dqm.logger
 
-import java.sql.DriverManager
+import java.sql.{Date, DriverManager}
 import java.util.Properties
 
 import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
@@ -22,13 +22,21 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         |   columnName VARCHAR,
         |   row VARCHAR,
         |   value VARCHAR,
-        |   rule VARCHAR
+        |   rule VARCHAR,
+        |   year INTEGER,
+        |   month INTEGER,
+        |   day INTEGER,
+        |   date DATE
         |);
         |
         |CREATE TABLE TABLE_STATISTICS(
         |   tableName VARCHAR,
         |   rowsCount INTEGER,
-        |   columnsCount INTEGER
+        |   columnsCount INTEGER,
+        |   year INTEGER,
+        |   month INTEGER,
+        |   day INTEGER,
+        |   date DATE
         |);
         |
         |CREATE TABLE COLUMN_STATISTICS(
@@ -41,7 +49,11 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         |   min DOUBLE,
         |   max DOUBLE,
         |   avg DOUBLE,
-        |   stddev DOUBLE
+        |   stddev DOUBLE,
+        |   year INTEGER,
+        |   month INTEGER,
+        |   day INTEGER,
+        |   date DATE
         |);
       """.stripMargin)
     val logger = new DatabaseValidationResultLogger(
@@ -53,12 +65,26 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
       columnStatisticsTableName = "COLUMN_STATISTICS"
     )
     val invalidRecords = Seq(
-      InvalidRecord("table", "c", "{c:value}", "value", "NOT NULL")
+      InvalidRecord(
+        "table",
+        "c",
+        "{c:value}",
+        "value",
+        "NOT NULL",
+        2000,
+        1,
+        2,
+        Date.valueOf("2000-01-02")
+      )
     )
     val tableStatistics = TableStatistics(
       tableName = "t1",
       rowsCount = 5,
-      columnsCount = 3
+      columnsCount = 3,
+      year = 2000,
+      month = 1,
+      day = 2,
+      date = Date.valueOf("2000-01-02")
     )
     val columnsStatistics = Seq(
       ColumnStatistics(
@@ -67,7 +93,11 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         columnType = "StringType",
         notMissingCount = 10,
         rowsCount = 20,
-        percentageNotMissing = 50.0
+        percentageNotMissing = 50.0,
+        year = 2000,
+        month = 1,
+        day = 2,
+        date = Date.valueOf("2000-01-02")
       ),
       ColumnStatistics(
         tableName = "t1",
@@ -75,7 +105,11 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         columnType = "IntType",
         notMissingCount = 30,
         rowsCount = 50,
-        percentageNotMissing = 60.0
+        percentageNotMissing = 60.0,
+        year = 2000,
+        month = 1,
+        day = 2,
+        date = Date.valueOf("2000-01-02")
       )
     )
     logger.log(ValidationResult(

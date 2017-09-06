@@ -1,5 +1,7 @@
 package com.datawizards.dqm.result
 
+import java.sql.Date
+
 case class ColumnStatistics (
                               tableName: String,
                               columnName: String,
@@ -10,9 +12,9 @@ case class ColumnStatistics (
                               min: Option[Double] = None,
                               max: Option[Double] = None,
                               avg: Option[Double] = None,
-                              stddev: Option[Double] = None/*,
+                              stddev: Option[Double] = None,
                               year: Int,
                               month: Int,
                               day: Int,
-                              date: Date*/
+                              date: Date
                             )
