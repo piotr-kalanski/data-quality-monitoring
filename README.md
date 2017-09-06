@@ -112,7 +112,7 @@ tablesConfiguration = [
 
 ### Load configuration from database
 
-Use class: ```DatabaseConfigurationLoader```.
+Use class: `DatabaseConfigurationLoader`.
 
 One table row should contain configuration for one table (TableConfiguration).
 
@@ -128,12 +128,12 @@ Supported validation rules:
 ## Log validation results
 
 Validation results can be logged into:
-- Elasticsearch using class ```ElasticsearchValidationResultLogger```
-- RDBMS using class ```DatabaseValidationResultLogger```
+- Elasticsearch using class `ElasticsearchValidationResultLogger`
+- RDBMS using class `DatabaseValidationResultLogger`
 
 ## Send alerts
 
 Alerts can be send to:
-- Slack
+- Slack using class `SlackAlertSender`
 - email
 
