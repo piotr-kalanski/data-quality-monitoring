@@ -4,5 +4,5 @@ case class SlackMessage(
                          text: String,
                          channel: String,
                          username: String,
-                         attachments: Seq[SlackMessageAttachment]
+                         attachments: Seq[SlackMessageAttachment] = Seq.empty
                        )

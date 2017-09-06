@@ -1,7 +1,6 @@
 package com.datawizards.dqm.logger
 
 import java.time.{LocalDateTime, ZoneId}
-
 import com.datawizards.dqm.dto.{SlackMessage, SlackMessageAttachment}
 import com.datawizards.dqm.repository.SlackWebHookRepositoryImpl
 

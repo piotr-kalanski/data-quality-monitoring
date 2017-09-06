@@ -1,7 +1,6 @@
 package com.datawizards.dqm.validator
 
 import java.sql.Date
-
 import com.datawizards.dqm.configuration.TableConfiguration
 import com.datawizards.dqm.configuration.location.StaticTableLocation
 import com.datawizards.dqm.filter.FilterByYearMonthDayColumns
