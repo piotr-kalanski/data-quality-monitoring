@@ -7,5 +7,6 @@ import com.datawizards.dqm.rules.TableRules
 case class TableConfiguration(
                                location: TableLocation,
                                rules: TableRules,
-                               filterByProcessingDateStrategy: Option[FilterByProcessingDateStrategy] = None
+                               filterByProcessingDateStrategy: Option[FilterByProcessingDateStrategy] = None,
+                               groups: Seq[GroupByConfiguration] = Seq.empty
                              )

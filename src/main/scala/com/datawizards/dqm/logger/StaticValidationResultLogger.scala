@@ -1,6 +1,6 @@
 package com.datawizards.dqm.logger
 
-import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
+import com.datawizards.dqm.result._
 
 import scala.collection.mutable.ListBuffer
 
@@ -15,4 +15,6 @@ class StaticValidationResultLogger extends ValidationResultLogger {
   override protected def logTableStatistics(tableStatistics: TableStatistics): Unit = { /* do nothing */ }
 
   override protected def logColumnStatistics(columnsStatistics: Seq[ColumnStatistics]): Unit = { /* do nothing */ }
+
+  override protected def logGroupByStatistics(groupByStatisticsList: Seq[GroupByStatistics]): Unit = { /* do nothing */ }
 }

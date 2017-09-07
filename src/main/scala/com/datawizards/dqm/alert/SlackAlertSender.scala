@@ -21,7 +21,7 @@ class SlackAlertSender(webHookUrl: String, slackChannel: String, slackUserName: 
 
   private def sendAlertEmptyTable(tableStatistics: TableStatistics): Unit = {
     slackRepository.sendMessage(SlackMessage(
-      text = s"Empty table [${tableStatistics.tableName}] for date ${tableStatistics.date}",
+      text = s"Empty table [${tableStatistics.tableName}] for date ${tableStatistics.year}-${tableStatistics.month}-${tableStatistics.day}",
       channel = slackChannel,
       username = slackUserName
     ))
@@ -29,7 +29,7 @@ class SlackAlertSender(webHookUrl: String, slackChannel: String, slackUserName: 
 
   private def sendAlertEmptyColumns(emptyColumns: Seq[ColumnStatistics]): Unit = {
     slackRepository.sendMessage(SlackMessage(
-      text = s"Empty columns for table [${emptyColumns.head.tableName}] for date ${emptyColumns.head.date}",
+      text = s"Empty columns for table [${emptyColumns.head.tableName}] for date ${emptyColumns.head.year}-${emptyColumns.head.month}-${emptyColumns.head.day}",
       channel = slackChannel,
       username = slackUserName,
       attachments = emptyColumns.map {c =>
@@ -47,7 +47,7 @@ class SlackAlertSender(webHookUrl: String, slackChannel: String, slackUserName: 
 
   private def sendAlertInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit = {
     slackRepository.sendMessage(SlackMessage(
-      text = s"Invalid records for table [${invalidRecords.head.tableName}] for date ${invalidRecords.head.date}",
+      text = s"Invalid records for table [${invalidRecords.head.tableName}] for date ${invalidRecords.head.year}-${invalidRecords.head.month}-${invalidRecords.head.day}",
       channel = slackChannel,
       username = slackUserName,
       attachments = invalidRecords.take(10).map {r =>

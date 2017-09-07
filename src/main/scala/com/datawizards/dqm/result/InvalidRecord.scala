@@ -1,7 +1,5 @@
 package com.datawizards.dqm.result
 
-import java.sql.Date
-
 case class InvalidRecord(
                           tableName: String,
                           columnName: String,
@@ -10,7 +8,6 @@ case class InvalidRecord(
                           rule: String,
                           year: Int,
                           month: Int,
-                          day: Int,
-                          date: Date
+                          day: Int
                         )
 

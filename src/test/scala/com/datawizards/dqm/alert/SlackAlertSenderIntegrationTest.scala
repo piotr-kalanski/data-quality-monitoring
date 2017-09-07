@@ -16,8 +16,7 @@ object SlackAlertSenderIntegrationTest extends App {
         rule = "NOT NULL",
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       InvalidRecord(
         tableName = "CLIENT",
@@ -27,8 +26,7 @@ object SlackAlertSenderIntegrationTest extends App {
         rule = "min",
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       )
     ),
     tableStatistics = TableStatistics(
@@ -37,8 +35,7 @@ object SlackAlertSenderIntegrationTest extends App {
       columnsCount = 6,
       year = 2000,
       month = 1,
-      day = 2,
-      date = processingDate
+      day = 2
     ),
     columnsStatistics = Seq(
       ColumnStatistics(
@@ -50,8 +47,7 @@ object SlackAlertSenderIntegrationTest extends App {
         percentageNotMissing = 0.0/3.0,
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       ColumnStatistics(
         tableName = "CLIENT",
@@ -62,8 +58,7 @@ object SlackAlertSenderIntegrationTest extends App {
         percentageNotMissing = 0.0/3.0,
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       ColumnStatistics(
         tableName = "CLIENT",
@@ -74,8 +69,7 @@ object SlackAlertSenderIntegrationTest extends App {
         percentageNotMissing = 2.0/3.0,
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       ColumnStatistics(
         tableName = "CLIENT",
@@ -90,8 +84,7 @@ object SlackAlertSenderIntegrationTest extends App {
         stddev = Some(0.0),
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       ColumnStatistics(
         tableName = "CLIENT",
@@ -106,8 +99,7 @@ object SlackAlertSenderIntegrationTest extends App {
         stddev = Some(0.0),
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       ColumnStatistics(
         tableName = "CLIENT",
@@ -122,8 +114,7 @@ object SlackAlertSenderIntegrationTest extends App {
         stddev = Some(0.0),
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       )
     )
   )

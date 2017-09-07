@@ -2,10 +2,10 @@ package com.datawizards.dqm.validator
 
 import java.sql.Date
 
-import com.datawizards.dqm.configuration.TableConfiguration
-import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
+import com.datawizards.dqm.configuration.{GroupByConfiguration, TableConfiguration}
+import com.datawizards.dqm.result._
 import com.datawizards.dqm.rules.TableRules
-import org.apache.spark.sql.functions.{avg, count, max, min, stddev}
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, DataFrame, Row}
 
@@ -30,13 +30,14 @@ object DataValidator {
     val processingMonth = localDate.getMonthValue
     val processingDay = localDate.getDayOfMonth
     ValidationResult(
-      invalidRecords = calculateInvalidRecords(df, tableName, tableRules, processingYear, processingMonth, processingDay, processingDate),
-      tableStatistics = calculateTableStatistics(df, tableName, rowsCount, processingYear, processingMonth, processingDay, processingDate),
-      columnsStatistics = calculateColumnStatistics(tableName, rowsCount, fields, aggregate, processingYear, processingMonth, processingDay, processingDate)
+      invalidRecords = calculateInvalidRecords(df, tableName, tableRules, processingYear, processingMonth, processingDay),
+      tableStatistics = calculateTableStatistics(df, tableName, rowsCount, processingYear, processingMonth, processingDay),
+      columnsStatistics = calculateColumnStatistics(tableName, rowsCount, fields, aggregate, processingYear, processingMonth, processingDay),
+      groupByStatisticsList = calculateGroupByStatistics(df, tableConfiguration.groups, tableName, processingYear, processingMonth, processingDay)
     )
   }
 
-  private def calculateInvalidRecords(input: DataFrame, tableName: String, tableRules: TableRules, processingYear: Int, processingMonth: Int, processingDay: Int, processingDate: Date): Array[InvalidRecord] = {
+  private def calculateInvalidRecords(input: DataFrame, tableName: String, tableRules: TableRules, processingYear: Int, processingMonth: Int, processingDay: Int): Array[InvalidRecord] = {
     val spark = input.sparkSession
     import spark.implicits._
 
@@ -58,23 +59,21 @@ object DataValidator {
               rule = fr.name,
               year = processingYear,
               month = processingMonth,
-              day = processingDay,
-              date = processingDate
+              day = processingDay
             )
           }
       }}
     }.collect()
   }
 
-  private def calculateTableStatistics(df: DataFrame, tableName: String, rowsCount: Long, processingYear: Int, processingMonth: Int, processingDay: Int, processingDate: Date): TableStatistics = {
+  private def calculateTableStatistics(df: DataFrame, tableName: String, rowsCount: Long, processingYear: Int, processingMonth: Int, processingDay: Int): TableStatistics = {
     TableStatistics(
       tableName = tableName,
       rowsCount = rowsCount,
       columnsCount = calculateColumnsCount(df),
       year = processingYear,
       month = processingMonth,
-      day = processingDay,
-      date = processingDate
+      day = processingDay
     )
   }
 
@@ -120,7 +119,7 @@ object DataValidator {
   private def calculateRowsCount(aggregate: Row): Long =
     aggregate.getAs[Long](countColumn)
 
-  private def calculateColumnStatistics(tableName: String, rowsCount: Long, fields: Seq[StructField], aggregate: Row, processingYear: Int, processingMonth: Int, processingDay: Int, processingDate: Date): Seq[ColumnStatistics] = {
+  private def calculateColumnStatistics(tableName: String, rowsCount: Long, fields: Seq[StructField], aggregate: Row, processingYear: Int, processingMonth: Int, processingDay: Int): Seq[ColumnStatistics] = {
     var columnIndex = -1
 
     fields
@@ -145,8 +144,7 @@ object DataValidator {
           stddev = getAggregateValueIfNumericField(aggregate, stdDevForColumnName(columnName), columnType),
           year = processingYear,
           month = processingMonth,
-          day = processingDay,
-          date = processingDate
+          day = processingDay
         )
 
       })
@@ -181,4 +179,19 @@ object DataValidator {
     case _ => Double.NaN
   }
 
+  private def calculateGroupByStatistics(df: DataFrame, groups: Seq[GroupByConfiguration], tableName: String, processingYear: Int, processingMonth: Int, processingDay: Int): scala.Seq[GroupByStatistics] = {
+    for {
+      group <- groups
+      (groupByFieldValue, rowsCount) <- df.groupBy(group.groupByFieldName).count().collect().map(r => r.getAs[String](group.groupByFieldName) -> r.getAs[Long]("count"))
+    }
+      yield GroupByStatistics(
+        tableName = tableName,
+        groupName = group.groupName,
+        groupByFieldValue = groupByFieldValue,
+        rowsCount = rowsCount,
+        year = processingYear,
+        month = processingMonth,
+        day = processingDay
+      )
+  }
 }

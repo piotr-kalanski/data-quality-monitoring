@@ -1,7 +1,7 @@
 package com.datawizards.dqm.configuration.loader
 
 import com.datawizards.dqm.configuration.location.{HiveTableLocation, TableLocation}
-import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, TableConfiguration}
+import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, GroupByConfiguration, TableConfiguration}
 import com.datawizards.dqm.filter.{FilterByProcessingDateStrategy, FilterByYearMonthDayColumns}
 import com.datawizards.dqm.rules._
 import com.typesafe.config.{Config, ConfigList, ConfigValue}
@@ -23,18 +23,19 @@ trait ConfigurationLoader {
 
   protected def parseTableConfiguration(tableConfigValue: ConfigValue): TableConfiguration = {
     val tableConfiguration = tableConfigValue.atKey("table")
-    parseTableConfiguration(tableConfiguration, "table.location", "table.rules", "table.filter")
+    parseTableConfiguration(tableConfiguration, "table.location", "table.rules", "table.filter", "table.groups")
   }
 
   protected def parseTableConfiguration(tableConfiguration: Config): TableConfiguration = {
-    parseTableConfiguration(tableConfiguration, "location", "rules", "filter")
+    parseTableConfiguration(tableConfiguration, "location", "rules", "filter", "groups")
   }
 
-  private def parseTableConfiguration(tableConfiguration: Config, locationPath: String, rulesPath: String, filterPath: String): TableConfiguration = {
+  private def parseTableConfiguration(tableConfiguration: Config, locationPath: String, rulesPath: String, filterPath: String, groupsPath: String): TableConfiguration = {
     TableConfiguration(
       location = parseLocation(tableConfiguration.getConfig(locationPath)),
       rules = parseTableRules(tableConfiguration.getConfig(rulesPath)),
-      filterByProcessingDateStrategy = parseFilterByProcessingDateStrategy(tableConfiguration, filterPath)
+      filterByProcessingDateStrategy = parseFilterByProcessingDateStrategy(tableConfiguration, filterPath),
+      groups = parseGroups(tableConfiguration, groupsPath)
     )
   }
 
@@ -80,4 +81,19 @@ trait ConfigurationLoader {
       else throw new RuntimeException("Not supported type: " + filterType)
     }
   }
+
+  private def parseGroups(tableConfiguration: Config, groupsPath: String): Seq[GroupByConfiguration] = {
+    if(!tableConfiguration.hasPath(groupsPath))
+      Seq.empty
+    else {
+      val groupConfigs = tableConfiguration.getConfigList(groupsPath).toList
+      groupConfigs.map{cfg =>
+        GroupByConfiguration(
+          groupName = cfg.getString("name"),
+          groupByFieldName = cfg.getString("field")
+        )
+      }
+    }
+  }
+
 }

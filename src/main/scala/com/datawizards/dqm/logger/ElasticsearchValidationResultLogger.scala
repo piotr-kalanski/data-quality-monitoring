@@ -1,6 +1,6 @@
 package com.datawizards.dqm.logger
 
-import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics}
+import com.datawizards.dqm.result.{ColumnStatistics, GroupByStatistics, InvalidRecord, TableStatistics}
 import com.datawizards.esclient.repository.ElasticsearchRepositoryImpl
 
 /**
@@ -10,8 +10,15 @@ import com.datawizards.esclient.repository.ElasticsearchRepositoryImpl
   * @param invalidRecordsIndexName Index name where to store invalid records
   * @param tableStatisticsIndexName Index name where to store table statistics
   * @param columnStatisticsIndexName Index name where to store column statistics
+  * @param groupsStatisticsIndexName Index name where to store group statistics
   */
-class ElasticsearchValidationResultLogger(esUrl: String, invalidRecordsIndexName: String, tableStatisticsIndexName: String, columnStatisticsIndexName: String) extends ValidationResultLogger {
+class ElasticsearchValidationResultLogger(
+                                           esUrl: String,
+                                           invalidRecordsIndexName: String,
+                                           tableStatisticsIndexName: String,
+                                           columnStatisticsIndexName: String,
+                                           groupsStatisticsIndexName: String
+                                         ) extends ValidationResultLogger {
   private lazy val esRepository = new ElasticsearchRepositoryImpl(esUrl)
 
   override protected def logInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit = {
@@ -41,4 +48,15 @@ class ElasticsearchValidationResultLogger(esUrl: String, invalidRecordsIndexName
         document = column
       )
   }
+
+  override protected def logGroupByStatistics(groupByStatisticsList: Seq[GroupByStatistics]): Unit = {
+    for(groupByStatistics <- groupByStatisticsList)
+      esRepository.index(
+        indexName = groupsStatisticsIndexName,
+        typeName = "group_statistics",
+        documentId = java.util.UUID.randomUUID().toString,
+        document = groupByStatistics
+      )
+  }
+
 }
