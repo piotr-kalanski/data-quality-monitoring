@@ -1,7 +1,6 @@
 package com.datawizards.dqm.validator
 
 import java.sql.Date
-
 import com.datawizards.dqm.configuration.{GroupByConfiguration, TableConfiguration}
 import com.datawizards.dqm.result._
 import com.datawizards.dqm.rules.TableRules
