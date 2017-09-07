@@ -4,5 +4,6 @@ case class ValidationResult(
                              invalidRecords: Seq[InvalidRecord],
                              tableStatistics: TableStatistics,
                              columnsStatistics: Seq[ColumnStatistics],
-                             groupByStatisticsList: Seq[GroupByStatistics] = Seq.empty
+                             groupByStatisticsList: Seq[GroupByStatistics] = Seq.empty,
+                             invalidGroups: Seq[InvalidGroup] = Seq.empty
                            )

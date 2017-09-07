@@ -1,6 +1,7 @@
 package com.datawizards.dqm.validator
 
 import java.sql.Date
+
 import com.datawizards.dqm.configuration.{GroupByConfiguration, TableConfiguration}
 import com.datawizards.dqm.result._
 import com.datawizards.dqm.rules.TableRules
@@ -8,6 +9,7 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, DataFrame, Row}
 
+import scala.collection.mutable.ListBuffer
 import scala.util.parsing.json.JSONObject
 
 object DataValidator {
@@ -28,11 +30,13 @@ object DataValidator {
     val processingYear = localDate.getYear
     val processingMonth = localDate.getMonthValue
     val processingDay = localDate.getDayOfMonth
+    val (groupByStatisticsList, invalidGroups) = calculateGroupByStatistics(df, tableConfiguration.groups, tableName, processingYear, processingMonth, processingDay)
     ValidationResult(
       invalidRecords = calculateInvalidRecords(df, tableName, tableRules, processingYear, processingMonth, processingDay),
       tableStatistics = calculateTableStatistics(df, tableName, rowsCount, processingYear, processingMonth, processingDay),
       columnsStatistics = calculateColumnStatistics(tableName, rowsCount, fields, aggregate, processingYear, processingMonth, processingDay),
-      groupByStatisticsList = calculateGroupByStatistics(df, tableConfiguration.groups, tableName, processingYear, processingMonth, processingDay)
+      groupByStatisticsList = groupByStatisticsList,
+      invalidGroups = invalidGroups
     )
   }
 
@@ -178,19 +182,36 @@ object DataValidator {
     case _ => Double.NaN
   }
 
-  private def calculateGroupByStatistics(df: DataFrame, groups: Seq[GroupByConfiguration], tableName: String, processingYear: Int, processingMonth: Int, processingDay: Int): scala.Seq[GroupByStatistics] = {
-    for {
-      group <- groups
-      (groupByFieldValue, rowsCount) <- df.groupBy(group.groupByFieldName).count().collect().map(r => r.getAs[String](group.groupByFieldName) -> r.getAs[Long]("count"))
+  private def calculateGroupByStatistics(df: DataFrame, groups: Seq[GroupByConfiguration], tableName: String, processingYear: Int, processingMonth: Int, processingDay: Int): (Seq[GroupByStatistics], Seq[InvalidGroup]) = {
+    val groupByStatisticsListBuffer = new ListBuffer[GroupByStatistics]
+    val invalidGroupsBuffer = new ListBuffer[InvalidGroup]
+
+    for(group <- groups) {
+      val groupByResult = df.groupBy(group.groupByFieldName).count().collect().map(r => r.getAs[String](group.groupByFieldName) -> r.getAs[Long]("count"))
+      val groupByStatisticsList = groupByResult.map{case (groupByFieldValue,rowsCount) =>
+        GroupByStatistics(
+          tableName = tableName,
+          groupName = group.groupName,
+          groupByFieldValue = groupByFieldValue,
+          rowsCount = rowsCount,
+          year = processingYear,
+          month = processingMonth,
+          day = processingDay
+      )}
+      groupByStatisticsListBuffer ++= groupByStatisticsList
+      for(groupRule <- group.rules)
+        if(!groupRule.validate(groupByStatisticsList)) {
+          invalidGroupsBuffer += InvalidGroup(
+            tableName = tableName,
+            groupName = group.groupName,
+            rule = groupRule.name,
+            year = processingYear,
+            month = processingMonth,
+            day = processingDay
+          )
+        }
     }
-      yield GroupByStatistics(
-        tableName = tableName,
-        groupName = group.groupName,
-        groupByFieldValue = groupByFieldValue,
-        rowsCount = rowsCount,
-        year = processingYear,
-        month = processingMonth,
-        day = processingDay
-      )
+
+    (groupByStatisticsListBuffer.toList, invalidGroupsBuffer.toList)
   }
 }

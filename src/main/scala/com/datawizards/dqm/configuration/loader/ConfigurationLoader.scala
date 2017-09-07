@@ -90,10 +90,27 @@ trait ConfigurationLoader {
       groupConfigs.map{cfg =>
         GroupByConfiguration(
           groupName = cfg.getString("name"),
-          groupByFieldName = cfg.getString("field")
+          groupByFieldName = cfg.getString("field"),
+          rules = parseGroupRules(cfg)
         )
       }
     }
+  }
+
+  private def parseGroupRules(cfg: Config): Seq[GroupRule] = {
+    if(!cfg.hasPath("rules"))
+      Seq.empty
+    else {
+      val groupRulesConfig = cfg.getConfigList("rules")
+      for(groupRuleConfig <- groupRulesConfig)
+        yield parseGroupRule(groupRuleConfig)
+    }
+  }
+
+  private def parseGroupRule(cfg: Config): GroupRule = {
+    val ruleType = cfg.getString("type")
+    if(ruleType == "NotEmptyGroups") NotEmptyGroups(cfg.getStringList("expectedGroups"))
+    else throw new RuntimeException("Not supported type: " + ruleType)
   }
 
 }

@@ -6,7 +6,7 @@ import com.datawizards.dqm.configuration.{GroupByConfiguration, TableConfigurati
 import com.datawizards.dqm.configuration.location.StaticTableLocation
 import com.datawizards.dqm.filter.FilterByYearMonthDayColumns
 import com.datawizards.dqm.result._
-import com.datawizards.dqm.rules.{FieldRules, NotNullRule, TableRules}
+import com.datawizards.dqm.rules.{FieldRules, NotEmptyGroups, NotNullRule, TableRules}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.junit.runner.RunWith
@@ -221,6 +221,81 @@ class DataValidatorTest extends FunSuite with Matchers {
         )
       )
     ))
+  }
+
+  test("Validate records - group validation rules") {
+    val schema = StructType(Seq(
+      StructField("country", StringType)
+    ))
+    val df = spark.createDataFrame(spark.sparkContext.parallelize(Seq(
+      Row("country1"),
+      Row("country1"),
+      Row("country1"),
+      Row("country2"),
+      Row("country2")
+    )), schema)
+    val processingDate = Date.valueOf("2000-01-02")
+    val input = StaticTableLocation(df, "table")
+    val result = DataValidator.validate(TableConfiguration(
+      location = input,
+      rules = TableRules(Seq.empty),
+      groups = Seq(GroupByConfiguration("COUNTRY", "country", Seq(NotEmptyGroups(Seq("country1","country2","country3")))))
+    ), processingDate)
+    result.copy(groupByStatisticsList = result.groupByStatisticsList.sortBy(_.groupByFieldValue)) should equal(ValidationResult(
+      invalidRecords = Seq.empty,
+      tableStatistics = TableStatistics(
+        tableName = "table",
+        rowsCount = 5,
+        columnsCount = 1,
+        year = 2000,
+        month = 1,
+        day = 2
+      ),
+      columnsStatistics = Seq(
+        ColumnStatistics(
+          tableName = "table",
+          columnName = "country",
+          columnType = "StringType",
+          notMissingCount = 5L,
+          rowsCount = 5L,
+          percentageNotMissing = 5.0/5.0,
+          year = 2000,
+          month = 1,
+          day = 2
+        )
+      ),
+      groupByStatisticsList = Seq(
+        GroupByStatistics(
+          tableName = "table",
+          groupName = "COUNTRY",
+          groupByFieldValue = "country1",
+          rowsCount = 3,
+          year = 2000,
+          month = 1,
+          day = 2
+        ),
+        GroupByStatistics(
+          tableName = "table",
+          groupName = "COUNTRY",
+          groupByFieldValue = "country2",
+          rowsCount = 2,
+          year = 2000,
+          month = 1,
+          day = 2
+        )
+      ),
+      invalidGroups = Seq(
+        InvalidGroup(
+          tableName = "table",
+          groupName = "COUNTRY",
+          rule = "NotEmptyGroups",
+          year = 2000,
+          month = 1,
+          day = 2
+        )
+      )
+    ))
+
   }
 
 }
