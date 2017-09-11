@@ -3,6 +3,7 @@ package com.datawizards.dqm
 import java.sql.Date
 
 import com.datawizards.dqm.alert.AlertSender
+import com.datawizards.dqm.configuration.ValidationContext
 import com.datawizards.dqm.configuration.loader.ConfigurationLoader
 import com.datawizards.dqm.logger.ValidationResultLogger
 import com.datawizards.dqm.validator.DataValidator
@@ -20,7 +21,8 @@ object DataQualityMonitor {
       .tablesConfiguration
       .foreach{tc =>
         log.info("Validating table: " + tc.location.tableName)
-        val result = DataValidator.validate(tc, processingDate)
+        val context = ValidationContext(tc.location.tableName, processingDate)
+        val result = DataValidator.validate(tc, context)
         log.info("Logging validation results for table: " + tc.location.tableName)
         validationResultLogger.log(result)
         log.info("Sending alerts for table: " + tc.location.tableName)

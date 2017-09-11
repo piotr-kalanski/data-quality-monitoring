@@ -2,7 +2,7 @@ package com.datawizards.dqm.validator
 
 import java.sql.Date
 
-import com.datawizards.dqm.configuration.{GroupByConfiguration, TableConfiguration}
+import com.datawizards.dqm.configuration.{GroupByConfiguration, TableConfiguration, ValidationContext}
 import com.datawizards.dqm.configuration.location.StaticTableLocation
 import com.datawizards.dqm.filter.FilterByYearMonthDayColumns
 import com.datawizards.dqm.result._
@@ -44,7 +44,7 @@ class DataValidatorTest extends FunSuite with Matchers {
           )
         ))),
       Some(FilterByYearMonthDayColumns)
-    ), processingDate)
+    ), ValidationContext("table", processingDate))
     result should equal(ValidationResult(
       invalidRecords = Seq(
         InvalidRecord(
@@ -167,7 +167,7 @@ class DataValidatorTest extends FunSuite with Matchers {
       location = input,
       rules = TableRules(Seq.empty),
       groups = Seq(GroupByConfiguration("COUNTRY", "country"))
-    ), processingDate)
+    ), ValidationContext("table", processingDate))
     result.copy(groupByStatisticsList = result.groupByStatisticsList.sortBy(_.groupByFieldValue)) should equal(ValidationResult(
       invalidRecords = Seq.empty,
       tableStatistics = TableStatistics(
@@ -240,7 +240,7 @@ class DataValidatorTest extends FunSuite with Matchers {
       location = input,
       rules = TableRules(Seq.empty),
       groups = Seq(GroupByConfiguration("COUNTRY", "country", Seq(NotEmptyGroups(Seq("country1","country2","country3")))))
-    ), processingDate)
+    ), ValidationContext("table", processingDate))
     result.copy(groupByStatisticsList = result.groupByStatisticsList.sortBy(_.groupByFieldValue)) should equal(ValidationResult(
       invalidRecords = Seq.empty,
       tableStatistics = TableStatistics(
@@ -288,6 +288,7 @@ class DataValidatorTest extends FunSuite with Matchers {
         InvalidGroup(
           tableName = "table",
           groupName = "COUNTRY",
+          groupValue = Some("country3"),
           rule = "NotEmptyGroups",
           year = 2000,
           month = 1,

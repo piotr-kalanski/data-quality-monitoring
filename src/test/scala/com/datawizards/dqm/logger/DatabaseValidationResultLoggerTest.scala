@@ -62,6 +62,16 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         |   month INTEGER,
         |   day INTEGER
         |);
+        |
+        |CREATE TABLE INVALID_GROUPS(
+        |   tableName VARCHAR,
+        |   groupName VARCHAR,
+        |   groupValue VARCHAR,
+        |   rule VARCHAR,
+        |   year INTEGER,
+        |   month INTEGER,
+        |   day INTEGER
+        |);
       """.stripMargin)
     val logger = new DatabaseValidationResultLogger(
       driverClassName = "org.h2.Driver",
@@ -70,7 +80,8 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
       invalidRecordsTableName = "INVALID_RECORDS",
       tableStatisticsTableName = "TABLE_STATISTICS",
       columnStatisticsTableName = "COLUMN_STATISTICS",
-      groupsStatisticsTableName = "GROUP_STATISTICS"
+      groupsStatisticsTableName = "GROUP_STATISTICS",
+      invalidGroupsTableName = "INVALID_GROUPS"
     )
     val invalidRecords = Seq(
       InvalidRecord(
@@ -145,22 +156,45 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         day = 2
       )
     )
+    val invalidGroups = Seq(
+      InvalidGroup(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupValue = Some("country4"),
+        rule = "NotEmptyGroup",
+        year = 2000,
+        month = 1,
+        day = 2
+      ),
+      InvalidGroup(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupValue = Some("country5"),
+        rule = "NotEmptyGroup",
+        year = 2000,
+        month = 1,
+        day = 2
+      )
+    )
     logger.log(ValidationResult(
       invalidRecords = invalidRecords,
       tableStatistics = tableStatistics,
       columnsStatistics = columnsStatistics,
-      groupByStatisticsList = groupByStatisticsList
+      groupByStatisticsList = groupByStatisticsList,
+      invalidGroups = invalidGroups
     ))
     val resultInvalidRecords = selectTable[InvalidRecord](connection, "INVALID_RECORDS")._1
     val resultTableStatistics = selectTable[TableStatistics](connection, "TABLE_STATISTICS")._1
     val resultColumnStatistics = selectTable[ColumnStatistics](connection, "COLUMN_STATISTICS")._1
     val resultGroupByStatisticsList = selectTable[GroupByStatistics](connection, "GROUP_STATISTICS")._1
+    val resultInvalidGroups = selectTable[InvalidGroup](connection, "INVALID_GROUPS")._1
     connection.close()
 
     resultInvalidRecords should equal(invalidRecords)
     resultTableStatistics should equal(Seq(tableStatistics))
     resultColumnStatistics should equal(columnsStatistics)
     resultGroupByStatisticsList should equal(groupByStatisticsList)
+    resultInvalidGroups should equal(invalidGroups)
   }
 
 }

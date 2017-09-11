@@ -15,7 +15,8 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
   private val tableStatisticsIndexName = "table_statistics"
   private val columnStatisticsIndexName = "column_statistics"
   private val groupsStatisticsIndexName = "group_statistics"
-  private val logger = new ElasticsearchValidationResultLogger(esUrl, invalidRecordsIndexName, tableStatisticsIndexName, columnStatisticsIndexName, groupsStatisticsIndexName)
+  private val invalidGroupsIndexName = "invalid_groups"
+  private val logger = new ElasticsearchValidationResultLogger(esUrl, invalidRecordsIndexName, tableStatisticsIndexName, columnStatisticsIndexName, groupsStatisticsIndexName, invalidGroupsIndexName)
 
   test("Elasticsearch logger integration tests") {
     // Run integration tests if Elasticsearch cluster is running
@@ -32,6 +33,7 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
     repository.deleteIndexIfNotExists(tableStatisticsIndexName)
     repository.deleteIndexIfNotExists(columnStatisticsIndexName)
     repository.deleteIndexIfNotExists(groupsStatisticsIndexName)
+    repository.deleteIndexIfNotExists(invalidGroupsIndexName)
     val invalidRecords = Seq(
       InvalidRecord(
         "table",
@@ -105,11 +107,32 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
         day = 2
       )
     )
+    val invalidGroups = Seq(
+      InvalidGroup(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupValue = Some("country4"),
+        rule = "NotEmptyGroup",
+        year = 2000,
+        month = 1,
+        day = 2
+      ),
+      InvalidGroup(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupValue = Some("country5"),
+        rule = "NotEmptyGroup",
+        year = 2000,
+        month = 1,
+        day = 2
+      )
+    )
     logger.log(ValidationResult(
       invalidRecords = invalidRecords,
       tableStatistics = tableStatistics,
       columnsStatistics = columnsStatistics,
-      groupByStatisticsList = groupByStatisticsList
+      groupByStatisticsList = groupByStatisticsList,
+      invalidGroups = invalidGroups
     ))
     Thread.sleep(1000L)
 
@@ -124,6 +147,9 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
 
     val resultGroupByStatisticsList = repository.search[GroupByStatistics](groupsStatisticsIndexName)
     resultGroupByStatisticsList.hits.toSeq.sortBy(_.groupByFieldValue) should equal(groupByStatisticsList)
+
+    val resultInvalidGroups = repository.search[InvalidGroup](invalidGroupsIndexName)
+    resultInvalidGroups.hits.toSeq.sortBy(_.groupValue) should equal(invalidGroups)
   }
 
 }

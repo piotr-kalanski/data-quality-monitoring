@@ -1,7 +1,8 @@
 package com.datawizards.dqm.alert
 
 import java.sql.Date
-import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
+
+import com.datawizards.dqm.result._
 
 object SlackAlertSenderIntegrationTest extends App {
   val alertSender = new SlackAlertSender("https://hooks.slack.com/services/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", "workray-monitoring", "Data Quality Monitoring")
@@ -112,6 +113,26 @@ object SlackAlertSenderIntegrationTest extends App {
         max = Some(2.0),
         avg = Some(2.0),
         stddev = Some(0.0),
+        year = 2000,
+        month = 1,
+        day = 2
+      )
+    ),
+    invalidGroups = Seq(
+      InvalidGroup(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupValue = Some("country4"),
+        rule = "NotEmptyGroup",
+        year = 2000,
+        month = 1,
+        day = 2
+      ),
+      InvalidGroup(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupValue = Some("country5"),
+        rule = "NotEmptyGroup",
         year = 2000,
         month = 1,
         day = 2

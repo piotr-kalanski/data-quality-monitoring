@@ -17,4 +17,7 @@ class StaticValidationResultLogger extends ValidationResultLogger {
   override protected def logColumnStatistics(columnsStatistics: Seq[ColumnStatistics]): Unit = { /* do nothing */ }
 
   override protected def logGroupByStatistics(groupByStatisticsList: Seq[GroupByStatistics]): Unit = { /* do nothing */ }
+
+  override protected def logInvalidGroups(invalidGroups: Seq[InvalidGroup]): Unit = { /* do nothing */ }
+
 }

@@ -3,7 +3,7 @@ package com.datawizards.dqm.logger
 import java.sql.DriverManager
 import java.util.Properties
 
-import com.datawizards.dqm.result.{ColumnStatistics, GroupByStatistics, InvalidRecord, TableStatistics}
+import com.datawizards.dqm.result._
 import com.datawizards.class2jdbc._
 
 /**
@@ -67,6 +67,19 @@ import com.datawizards.class2jdbc._
   *   )
   * </pre>
   *
+  * Expected DB schema for invalidGroupsTableName:
+  * <pre>
+  *   CREATE TABLE INVALID_GROUPS(
+  *     tableName VARCHAR,
+  *     groupName VARCHAR,
+  *     groupValue VARCHAR,
+  *     rule VARCHAR,
+  *     year INTEGER,
+  *     month INTEGER,
+  *     day INTEGER
+  *   )
+  * </pre>
+  *
   * @param driverClassName JDBC driver class name
   * @param dbUrl DB connection string
   * @param connectionProperties JDBC connection properties, especially user and password
@@ -74,6 +87,7 @@ import com.datawizards.class2jdbc._
   * @param tableStatisticsTableName name of table where to insert table statistics records
   * @param columnStatisticsTableName name of table where to insert column statistics records
   * @param groupsStatisticsTableName name of table where to insert group by statistics records
+  * @param invalidGroupsTableName name of table where to insert invalid groups
   */
 class DatabaseValidationResultLogger(
                                       driverClassName: String,
@@ -82,7 +96,8 @@ class DatabaseValidationResultLogger(
                                       invalidRecordsTableName: String,
                                       tableStatisticsTableName: String,
                                       columnStatisticsTableName: String,
-                                      groupsStatisticsTableName: String
+                                      groupsStatisticsTableName: String,
+                                      invalidGroupsTableName: String
                                     ) extends ValidationResultLogger {
 
   override protected def logInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit = {
@@ -99,6 +114,10 @@ class DatabaseValidationResultLogger(
 
   override protected def logGroupByStatistics(groupByStatisticsList: Seq[GroupByStatistics]): Unit = {
     executeInserts(generateInserts(groupByStatisticsList, groupsStatisticsTableName))
+  }
+
+  override protected def logInvalidGroups(invalidGroups: Seq[InvalidGroup]): Unit = {
+    executeInserts(generateInserts(invalidGroups, invalidGroupsTableName))
   }
 
   private def executeInserts(inserts: Traversable[String]): Unit = {

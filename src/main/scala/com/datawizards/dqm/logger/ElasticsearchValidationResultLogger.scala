@@ -1,6 +1,6 @@
 package com.datawizards.dqm.logger
 
-import com.datawizards.dqm.result.{ColumnStatistics, GroupByStatistics, InvalidRecord, TableStatistics}
+import com.datawizards.dqm.result._
 import com.datawizards.esclient.repository.ElasticsearchRepositoryImpl
 
 /**
@@ -11,13 +11,15 @@ import com.datawizards.esclient.repository.ElasticsearchRepositoryImpl
   * @param tableStatisticsIndexName Index name where to store table statistics
   * @param columnStatisticsIndexName Index name where to store column statistics
   * @param groupsStatisticsIndexName Index name where to store group statistics
+  * @param invalidGroupsIndexName Index name where to store group statistics
   */
 class ElasticsearchValidationResultLogger(
                                            esUrl: String,
                                            invalidRecordsIndexName: String,
                                            tableStatisticsIndexName: String,
                                            columnStatisticsIndexName: String,
-                                           groupsStatisticsIndexName: String
+                                           groupsStatisticsIndexName: String,
+                                           invalidGroupsIndexName: String
                                          ) extends ValidationResultLogger {
   private lazy val esRepository = new ElasticsearchRepositoryImpl(esUrl)
 
@@ -56,6 +58,16 @@ class ElasticsearchValidationResultLogger(
         typeName = "group_statistics",
         documentId = java.util.UUID.randomUUID().toString,
         document = groupByStatistics
+      )
+  }
+
+  override protected def logInvalidGroups(invalidGroups: Seq[InvalidGroup]): Unit = {
+    for(group <- invalidGroups)
+      esRepository.index(
+        indexName = invalidGroupsIndexName,
+        typeName = "group",
+        documentId = java.util.UUID.randomUUID().toString,
+        document = group
       )
   }
 
