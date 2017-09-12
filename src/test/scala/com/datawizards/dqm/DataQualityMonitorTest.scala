@@ -1,8 +1,6 @@
 package com.datawizards.dqm
 
 import java.sql.Date
-import java.time.LocalDate
-
 import com.datawizards.dqm.alert.DevNullAlertSender
 import com.datawizards.dqm.configuration.loader.StaticConfigurationLoader
 import com.datawizards.dqm.configuration.location.StaticTableLocation
@@ -62,8 +60,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           rule = "NOT NULL",
           year = 2000,
           month = 1,
-          day = 2,
-          date = processingDate
+          day = 2
         )
       ),
       tableStatistics = TableStatistics(
@@ -72,8 +69,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
         columnsCount = 3,
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       columnsStatistics = Seq(
         ColumnStatistics(
@@ -85,8 +81,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           percentageNotMissing = 2.0/3.0,
           year = 2000,
           month = 1,
-          day = 2,
-          date = processingDate
+          day = 2
         ),
         ColumnStatistics(
           tableName = "table",
@@ -97,8 +92,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           percentageNotMissing = 2.0/3.0,
           year = 2000,
           month = 1,
-          day = 2,
-          date = processingDate
+          day = 2
         ),
         ColumnStatistics(
           tableName = "table",
@@ -109,8 +103,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           percentageNotMissing = 2.0/3.0,
           year = 2000,
           month = 1,
-          day = 2,
-          date = processingDate
+          day = 2
         )
       )
     ))

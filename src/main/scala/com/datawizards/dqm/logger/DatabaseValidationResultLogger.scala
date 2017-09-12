@@ -3,7 +3,7 @@ package com.datawizards.dqm.logger
 import java.sql.DriverManager
 import java.util.Properties
 
-import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics}
+import com.datawizards.dqm.result._
 import com.datawizards.class2jdbc._
 
 /**
@@ -19,8 +19,7 @@ import com.datawizards.class2jdbc._
   *     rule VARCHAR,
   *     year INTEGER,
   *     month INTEGER,
-  *     day INTEGER,
-  *     date DATE
+  *     day INTEGER
   *   )
   * </pre>
   *
@@ -32,12 +31,11 @@ import com.datawizards.class2jdbc._
   *     columnsCount INTEGER,
   *     year INTEGER,
   *     month INTEGER,
-  *     day INTEGER,
-  *     date DATE
+  *     day INTEGER
   *   )
   * </pre>
   *
-  * Expected DB schema for COLUMN_STATISTICS:
+  * Expected DB schema for columnStatisticsTableName:
   * <pre>
   *   CREATE TABLE COLUMN_STATISTICS(
   *     tableName VARCHAR,
@@ -52,8 +50,33 @@ import com.datawizards.class2jdbc._
   *     stddev DOUBLE,
   *     year INTEGER,
   *     month INTEGER,
-  *     day INTEGER,
-  *     date DATE
+  *     day INTEGER
+  *   )
+  * </pre>
+  *
+  * Expected DB schema for groupsStatisticsTableName:
+  * <pre>
+  *   CREATE TABLE GROUP_STATISTICS(
+  *     tableName VARCHAR,
+  *     groupName VARCHAR,
+  *     groupByFieldValue VARCHAR,
+  *     rowsCount INTEGER,
+  *     year INTEGER,
+  *     month INTEGER,
+  *     day INTEGER
+  *   )
+  * </pre>
+  *
+  * Expected DB schema for invalidGroupsTableName:
+  * <pre>
+  *   CREATE TABLE INVALID_GROUPS(
+  *     tableName VARCHAR,
+  *     groupName VARCHAR,
+  *     groupValue VARCHAR,
+  *     rule VARCHAR,
+  *     year INTEGER,
+  *     month INTEGER,
+  *     day INTEGER
   *   )
   * </pre>
   *
@@ -63,6 +86,8 @@ import com.datawizards.class2jdbc._
   * @param invalidRecordsTableName name of table where to insert invalid records
   * @param tableStatisticsTableName name of table where to insert table statistics records
   * @param columnStatisticsTableName name of table where to insert column statistics records
+  * @param groupsStatisticsTableName name of table where to insert group by statistics records
+  * @param invalidGroupsTableName name of table where to insert invalid groups
   */
 class DatabaseValidationResultLogger(
                                       driverClassName: String,
@@ -70,7 +95,9 @@ class DatabaseValidationResultLogger(
                                       connectionProperties: Properties,
                                       invalidRecordsTableName: String,
                                       tableStatisticsTableName: String,
-                                      columnStatisticsTableName: String
+                                      columnStatisticsTableName: String,
+                                      groupsStatisticsTableName: String,
+                                      invalidGroupsTableName: String
                                     ) extends ValidationResultLogger {
 
   override protected def logInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit = {
@@ -83,6 +110,14 @@ class DatabaseValidationResultLogger(
 
   override protected def logColumnStatistics(columnsStatistics: Seq[ColumnStatistics]): Unit = {
     executeInserts(generateInserts(columnsStatistics, columnStatisticsTableName))
+  }
+
+  override protected def logGroupByStatistics(groupByStatisticsList: Seq[GroupByStatistics]): Unit = {
+    executeInserts(generateInserts(groupByStatisticsList, groupsStatisticsTableName))
+  }
+
+  override protected def logInvalidGroups(invalidGroups: Seq[InvalidGroup]): Unit = {
+    executeInserts(generateInserts(invalidGroups, invalidGroupsTableName))
   }
 
   private def executeInserts(inserts: Traversable[String]): Unit = {

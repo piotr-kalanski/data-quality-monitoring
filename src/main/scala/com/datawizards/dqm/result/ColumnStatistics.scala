@@ -1,7 +1,5 @@
 package com.datawizards.dqm.result
 
-import java.sql.Date
-
 case class ColumnStatistics (
                               tableName: String,
                               columnName: String,
@@ -15,6 +13,5 @@ case class ColumnStatistics (
                               stddev: Option[Double] = None,
                               year: Int,
                               month: Int,
-                              day: Int,
-                              date: Date
+                              day: Int
                             )

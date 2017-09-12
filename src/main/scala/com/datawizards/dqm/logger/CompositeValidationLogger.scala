@@ -2,13 +2,10 @@ package com.datawizards.dqm.logger
 
 import com.datawizards.dqm.result._
 
-import scala.collection.mutable.ListBuffer
-
-class StaticValidationResultLogger extends ValidationResultLogger {
-  val results = new ListBuffer[ValidationResult]
+class CompositeValidationLogger(loggers: Seq[ValidationResultLogger]) extends ValidationResultLogger {
 
   override def log(result: ValidationResult): Unit =
-    results += result
+    loggers.foreach(_.log(result))
 
   override protected def logInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit = { /* do nothing */ }
 

@@ -1,3 +1,4 @@
+
 # data-quality-monitoring
 Data Quality Monitoring Tool for Big Data implemented using Spark
 
@@ -12,11 +13,13 @@ Data Quality Monitoring Tool for Big Data implemented using Spark
 - [Getting started](#getting-started)
 - [Data quality monitoring process](#data-quality-monitoring-process)
   - [Load configuration](#load-configuration)
+    - [Example configuration](#example-configuration)
     - [Load configuration from file](#load-configuration-from-file)
     - [Load configuration from database](#load-configuration-from-database)
   - [Validation rules](#validation-rules)
   - [Log validation results](#log-validation-results)
   - [Send alerts](#send-alerts)
+- [Full example](#full-example)
 
 # Goals
 
@@ -60,11 +63,157 @@ Additionally there are plans to support:
 - directory
 - Dynamo DB
 
+### Example configuration
+
+```
+tablesConfiguration = [
+  {
+    location = {type = Hive, table = clients}, // location of first table that should be validated
+    rules = { // validation rules 
+      rowRules = [ // validation rules working on single row level
+        {
+          field = client_id, // name of field that should be validated
+          rules = [
+            {type = NotNull}, // this field shouldn't be null
+            {type = min, value = 0} // minimum value for this field is 0
+          ]
+        },
+        {
+          field = client_name,
+          rules = [
+            {type = NotNull} // this field shouldn't be null
+          ]
+        }
+      ]
+    }
+  },
+  {
+    location = {type = Hive, table = companies}, // location of first table that should be validated
+    rules = {
+      rowRules = [
+        {
+          field = company_id, // name of field that should be validated
+          rules = [
+            {type = NotNull}, // this field shouldn't be null
+            {type = max, value = 100} // maximum value for this field is 100
+          ]
+        },
+        {
+          field = company_name, // name of field that should be validated
+          rules = [
+            {type = NotNull} // this field shouldn't be null
+          ]
+        }
+      ]
+    }
+  }
+]
+```
+
 ### Load configuration from file
 
-Use class: ```FileConfigurationLoader```
+Use class: ```FileConfigurationLoader```.
 
-Example configuration:
+Example:
+```scala
+import com.datawizards.dqm.configuration.loader.FileConfigurationLoader
+val configurationLoader = new FileConfigurationLoader("configuration.conf")
+configurationLoader.loadConfiguration()
+```
+
+### Load configuration from database
+
+Use class: `DatabaseConfigurationLoader`.
+
+One table row should contain configuration for one table (TableConfiguration).
+
+## Validation rules
+
+Supported validation rules:
+- not null
+
+    ```{type = NotNull}```
+
+- dictionary
+
+    ```{type = dict, values=[1,2,3]}```
+    
+- regex
+
+    ```{type = regex, value = """\s.*"""}```
+    
+- min value
+
+    ```{type = min, value = 0}```
+    
+- max value
+
+    ```{type = max, value = 100}```
+
+## Log validation results
+
+Validation results can be logged into:
+- Elasticsearch using class `ElasticsearchValidationResultLogger`
+
+    ```scala  
+    val logger = new ElasticsearchValidationResultLogger(
+        esUrl = "http://localhost:9200", // Elasticsearch URL
+        invalidRecordsIndexName = "invalid_records", // Index name where to store invalid records
+        tableStatisticsIndexName = "table_statistics", // Index name where to store table statistics
+        columnStatisticsIndexName = "column_statistics", // Index name where to store column statistics
+        groupsStatisticsIndexName = "group_statistics", // Index name where to store group statistics
+        invalidGroupsIndexName = "invalid_groups" // Index name where to store group statistics
+    )
+    ```
+    
+- RDBMS using class `DatabaseValidationResultLogger`
+
+    ```scala
+  
+    val logger = new DatabaseValidationResultLogger(
+      driverClassName = "org.h2.Driver", // JDBC driver class name
+      dbUrl = connectionString, // DB connection string
+      connectionProperties = new Properties(), // JDBC connection properties, especially user and password
+      invalidRecordsTableName = "INVALID_RECORDS", // name of table where to insert invalid records
+      tableStatisticsTableName = "TABLE_STATISTICS", // name of table where to insert table statistics records
+      columnStatisticsTableName = "COLUMN_STATISTICS", // name of table where to insert column statistics records
+      groupsStatisticsTableName = "GROUP_STATISTICS", // name of table where to insert group by statistics records
+      invalidGroupsTableName = "INVALID_GROUPS" // name of table where to insert invalid groups
+    )
+    ```
+
+## Send alerts
+
+Alerts can be send to:
+- Slack using class `SlackAlertSender`
+
+Additionally there are plans to support:
+- email
+
+# Full example
+
+## Example
+
+```scala
+import com.datawizards.dqm.configuration.loader.FileConfigurationLoader
+import com.datawizards.dqm.logger.ElasticsearchValidationResultLogger
+import com.datawizards.dqm.alert.SlackAlertSender
+import com.datawizards.dqm.DataQualityMonitor
+
+val configurationLoader = new FileConfigurationLoader("configuration.conf")
+val esUrl = "http://localhost:9200"
+val invalidRecordsIndexName = "invalid_records"
+val tableStatisticsIndexName = "table_statistics"
+val columnStatisticsIndexName = "column_statistics"
+val groupsStatisticsIndexName = "group_statistics"
+val invalidGroupsIndexName = "invalid_groups"
+private val logger = new ElasticsearchValidationResultLogger(esUrl, invalidRecordsIndexName, tableStatisticsIndexName, columnStatisticsIndexName, groupsStatisticsIndexName, invalidGroupsIndexName)
+val alertSender = new SlackAlertSender("webhook url", "Slack channel", "Slack user name")
+val processingDate = new java.util.Date()
+DataQualityMonitor.run(processingDate, configurationLoader, logger, alertSender)
+```
+
+configuration.conf:
 ```
 tablesConfiguration = [
   {
@@ -74,33 +223,6 @@ tablesConfiguration = [
         {
           field = client_id,
           rules = [
-            {type = NotNull},
-            {type = min, value = 0}
-          ]
-        },
-        {
-          field = client_name,
-          rules = [
-            {type = NotNull}
-          ]
-        }
-      ]
-    }
-  },
-  {
-    location = {type = Hive, table = companies},
-    rules = {
-      rowRules = [
-        {
-          field = company_id,
-          rules = [
-            {type = NotNull},
-            {type = max, value = 100}
-          ]
-        },
-        {
-          field = company_name,
-          rules = [
             {type = NotNull}
           ]
         }
@@ -109,31 +231,3 @@ tablesConfiguration = [
   }
 ]
 ```
-
-### Load configuration from database
-
-Use class: ```DatabaseConfigurationLoader```.
-
-One table row should contain configuration for one table (TableConfiguration).
-
-## Validation rules
-
-Supported validation rules:
-- not null
-- dictionary
-- regex
-- min value
-- max value
-
-## Log validation results
-
-Validation results can be logged into:
-- Elasticsearch using class ```ElasticsearchValidationResultLogger```
-- RDBMS using class ```DatabaseValidationResultLogger```
-
-## Send alerts
-
-Alerts can be send to:
-- Slack
-- email
-

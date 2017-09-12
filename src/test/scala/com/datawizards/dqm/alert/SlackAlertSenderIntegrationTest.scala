@@ -1,7 +1,8 @@
 package com.datawizards.dqm.alert
 
 import java.sql.Date
-import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
+
+import com.datawizards.dqm.result._
 
 object SlackAlertSenderIntegrationTest extends App {
   val alertSender = new SlackAlertSender("https://hooks.slack.com/services/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", "workray-monitoring", "Data Quality Monitoring")
@@ -16,8 +17,7 @@ object SlackAlertSenderIntegrationTest extends App {
         rule = "NOT NULL",
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       InvalidRecord(
         tableName = "CLIENT",
@@ -27,8 +27,7 @@ object SlackAlertSenderIntegrationTest extends App {
         rule = "min",
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       )
     ),
     tableStatistics = TableStatistics(
@@ -37,8 +36,7 @@ object SlackAlertSenderIntegrationTest extends App {
       columnsCount = 6,
       year = 2000,
       month = 1,
-      day = 2,
-      date = processingDate
+      day = 2
     ),
     columnsStatistics = Seq(
       ColumnStatistics(
@@ -50,8 +48,7 @@ object SlackAlertSenderIntegrationTest extends App {
         percentageNotMissing = 0.0/3.0,
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       ColumnStatistics(
         tableName = "CLIENT",
@@ -62,8 +59,7 @@ object SlackAlertSenderIntegrationTest extends App {
         percentageNotMissing = 0.0/3.0,
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       ColumnStatistics(
         tableName = "CLIENT",
@@ -74,8 +70,7 @@ object SlackAlertSenderIntegrationTest extends App {
         percentageNotMissing = 2.0/3.0,
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       ColumnStatistics(
         tableName = "CLIENT",
@@ -90,8 +85,7 @@ object SlackAlertSenderIntegrationTest extends App {
         stddev = Some(0.0),
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       ColumnStatistics(
         tableName = "CLIENT",
@@ -106,8 +100,7 @@ object SlackAlertSenderIntegrationTest extends App {
         stddev = Some(0.0),
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
       ),
       ColumnStatistics(
         tableName = "CLIENT",
@@ -122,8 +115,27 @@ object SlackAlertSenderIntegrationTest extends App {
         stddev = Some(0.0),
         year = 2000,
         month = 1,
-        day = 2,
-        date = processingDate
+        day = 2
+      )
+    ),
+    invalidGroups = Seq(
+      InvalidGroup(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupValue = Some("country4"),
+        rule = "NotEmptyGroup",
+        year = 2000,
+        month = 1,
+        day = 2
+      ),
+      InvalidGroup(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupValue = Some("country5"),
+        rule = "NotEmptyGroup",
+        year = 2000,
+        month = 1,
+        day = 2
       )
     )
   )

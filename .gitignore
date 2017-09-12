@@ -1,7 +1,8 @@
-*.class
 *.log
 
 target
 .idea/
 
 spark-warehouse/
+
+*.iml

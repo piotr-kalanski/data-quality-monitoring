@@ -109,4 +109,56 @@ class FileConfigurationLoaderTest extends FunSuite with Matchers {
     configurationLoader.loadConfiguration() should equal(expectedConfiguration)
   }
 
+  test("Load configuration from file - groups") {
+    val configurationLoader = new FileConfigurationLoader(getClass.getResource("/configuration_with_groups.conf").getPath)
+    val expectedConfiguration = DataQualityMonitoringConfiguration(
+      tablesConfiguration = Seq(
+        TableConfiguration(
+          location = HiveTableLocation("clients"),
+          rules = TableRules(
+            rowRules = Seq(
+              FieldRules(
+                field = "client_id",
+                rules = Seq(
+                  NotNullRule
+                )
+              )
+            )
+          ),
+          groups = Seq(
+            GroupByConfiguration("COUNTRY", "country"),
+            GroupByConfiguration("GENDER", "gender")
+          )
+        )
+      )
+    )
+    configurationLoader.loadConfiguration() should equal(expectedConfiguration)
+  }
+
+  test("Load configuration from file - groups with rules") {
+    val configurationLoader = new FileConfigurationLoader(getClass.getResource("/configuration_with_groups_rules.conf").getPath)
+    val expectedConfiguration = DataQualityMonitoringConfiguration(
+      tablesConfiguration = Seq(
+        TableConfiguration(
+          location = HiveTableLocation("clients"),
+          rules = TableRules(
+            rowRules = Seq(
+              FieldRules(
+                field = "client_id",
+                rules = Seq(
+                  NotNullRule
+                )
+              )
+            )
+          ),
+          groups = Seq(
+            GroupByConfiguration("COUNTRY", "country", Seq(NotEmptyGroups(Seq("c1","c2","c3","c4")))),
+            GroupByConfiguration("GENDER", "gender")
+          )
+        )
+      )
+    )
+    configurationLoader.loadConfiguration() should equal(expectedConfiguration)
+  }
+
 }

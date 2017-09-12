@@ -1,9 +1,9 @@
 package com.datawizards.dqm.logger
 
-import java.sql.{Date, DriverManager}
+import java.sql.DriverManager
 import java.util.Properties
 
-import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
+import com.datawizards.dqm.result._
 import com.datawizards.jdbc2class._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -25,8 +25,7 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         |   rule VARCHAR,
         |   year INTEGER,
         |   month INTEGER,
-        |   day INTEGER,
-        |   date DATE
+        |   day INTEGER
         |);
         |
         |CREATE TABLE TABLE_STATISTICS(
@@ -35,8 +34,7 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         |   columnsCount INTEGER,
         |   year INTEGER,
         |   month INTEGER,
-        |   day INTEGER,
-        |   date DATE
+        |   day INTEGER
         |);
         |
         |CREATE TABLE COLUMN_STATISTICS(
@@ -52,8 +50,27 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         |   stddev DOUBLE,
         |   year INTEGER,
         |   month INTEGER,
-        |   day INTEGER,
-        |   date DATE
+        |   day INTEGER
+        |);
+        |
+        |CREATE TABLE GROUP_STATISTICS(
+        |   tableName VARCHAR,
+        |   groupName VARCHAR,
+        |   groupByFieldValue VARCHAR,
+        |   rowsCount INTEGER,
+        |   year INTEGER,
+        |   month INTEGER,
+        |   day INTEGER
+        |);
+        |
+        |CREATE TABLE INVALID_GROUPS(
+        |   tableName VARCHAR,
+        |   groupName VARCHAR,
+        |   groupValue VARCHAR,
+        |   rule VARCHAR,
+        |   year INTEGER,
+        |   month INTEGER,
+        |   day INTEGER
         |);
       """.stripMargin)
     val logger = new DatabaseValidationResultLogger(
@@ -62,7 +79,9 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
       connectionProperties = new Properties(),
       invalidRecordsTableName = "INVALID_RECORDS",
       tableStatisticsTableName = "TABLE_STATISTICS",
-      columnStatisticsTableName = "COLUMN_STATISTICS"
+      columnStatisticsTableName = "COLUMN_STATISTICS",
+      groupsStatisticsTableName = "GROUP_STATISTICS",
+      invalidGroupsTableName = "INVALID_GROUPS"
     )
     val invalidRecords = Seq(
       InvalidRecord(
@@ -73,8 +92,7 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         "NOT NULL",
         2000,
         1,
-        2,
-        Date.valueOf("2000-01-02")
+        2
       )
     )
     val tableStatistics = TableStatistics(
@@ -83,8 +101,7 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
       columnsCount = 3,
       year = 2000,
       month = 1,
-      day = 2,
-      date = Date.valueOf("2000-01-02")
+      day = 2
     )
     val columnsStatistics = Seq(
       ColumnStatistics(
@@ -96,8 +113,7 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         percentageNotMissing = 50.0,
         year = 2000,
         month = 1,
-        day = 2,
-        date = Date.valueOf("2000-01-02")
+        day = 2
       ),
       ColumnStatistics(
         tableName = "t1",
@@ -108,23 +124,77 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
         percentageNotMissing = 60.0,
         year = 2000,
         month = 1,
-        day = 2,
-        date = Date.valueOf("2000-01-02")
+        day = 2
+      )
+    )
+    val groupByStatisticsList = Seq(
+      GroupByStatistics(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupByFieldValue = "country1",
+        rowsCount = 3,
+        year = 2000,
+        month = 1,
+        day = 2
+      ),
+      GroupByStatistics(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupByFieldValue = "country2",
+        rowsCount = 2,
+        year = 2000,
+        month = 1,
+        day = 2
+      ),
+      GroupByStatistics(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupByFieldValue = "country3",
+        rowsCount = 1,
+        year = 2000,
+        month = 1,
+        day = 2
+      )
+    )
+    val invalidGroups = Seq(
+      InvalidGroup(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupValue = Some("country4"),
+        rule = "NotEmptyGroup",
+        year = 2000,
+        month = 1,
+        day = 2
+      ),
+      InvalidGroup(
+        tableName = "table",
+        groupName = "COUNTRY",
+        groupValue = Some("country5"),
+        rule = "NotEmptyGroup",
+        year = 2000,
+        month = 1,
+        day = 2
       )
     )
     logger.log(ValidationResult(
       invalidRecords = invalidRecords,
       tableStatistics = tableStatistics,
-      columnsStatistics = columnsStatistics
+      columnsStatistics = columnsStatistics,
+      groupByStatisticsList = groupByStatisticsList,
+      invalidGroups = invalidGroups
     ))
     val resultInvalidRecords = selectTable[InvalidRecord](connection, "INVALID_RECORDS")._1
     val resultTableStatistics = selectTable[TableStatistics](connection, "TABLE_STATISTICS")._1
     val resultColumnStatistics = selectTable[ColumnStatistics](connection, "COLUMN_STATISTICS")._1
+    val resultGroupByStatisticsList = selectTable[GroupByStatistics](connection, "GROUP_STATISTICS")._1
+    val resultInvalidGroups = selectTable[InvalidGroup](connection, "INVALID_GROUPS")._1
     connection.close()
 
     resultInvalidRecords should equal(invalidRecords)
     resultTableStatistics should equal(Seq(tableStatistics))
     resultColumnStatistics should equal(columnsStatistics)
+    resultGroupByStatisticsList should equal(groupByStatisticsList)
+    resultInvalidGroups should equal(invalidGroups)
   }
 
 }
