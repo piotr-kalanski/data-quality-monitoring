@@ -1,10 +1,10 @@
-package com.datawizards.dqm.configuration
+package com.datawizards.dqm.configuration.loader
 
 import java.sql.DriverManager
 import java.util.Properties
 
-import com.datawizards.dqm.configuration.loader.DatabaseConfigurationLoader
 import com.datawizards.dqm.configuration.location.HiveTableLocation
+import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, TableConfiguration}
 import com.datawizards.dqm.rules._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -19,10 +19,11 @@ class DatabaseConfigurationLoaderTest extends FunSuite with Matchers {
     val connection = DriverManager.getConnection(connectionString, "", "")
     connection.createStatement().execute(
       """CREATE TABLE VALIDATION_RULES(
+        |   tableName VARCHAR,
         |   tableConfiguration VARCHAR
         |);
         |
-        |INSERT INTO VALIDATION_RULES VALUES('{
+        |INSERT INTO VALIDATION_RULES VALUES('clients', '{
         |    location = {type = Hive, table = clients},
         |    rules = {
         |      rowRules = [
@@ -42,7 +43,7 @@ class DatabaseConfigurationLoaderTest extends FunSuite with Matchers {
         |      ]
         |    }
         |  }');
-        |INSERT INTO VALIDATION_RULES VALUES('{
+        |INSERT INTO VALIDATION_RULES VALUES('companies', '{
         |    location = {type = Hive, table = companies},
         |    rules = {
         |      rowRules = [
