@@ -4,7 +4,7 @@ import java.sql.Date
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
-object FilterByYearMonthDayColumns extends FilterByProcessingDateStrategy {
+case object FilterByYearMonthDayColumns extends FilterByProcessingDateStrategy {
 
   override def filter(input: DataFrame, processingDate: Date): DataFrame = {
     val localDate = processingDate.toLocalDate

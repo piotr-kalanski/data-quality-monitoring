@@ -15,6 +15,7 @@ Data Quality Monitoring Tool for Big Data implemented using Spark
   - [Load configuration](#load-configuration)
     - [Example configuration](#example-configuration)
     - [Load configuration from file](#load-configuration-from-file)
+    - [Load configuration from directory](#load-configuration-from-directory)
     - [Load configuration from database](#load-configuration-from-database)
   - [Validation rules](#validation-rules)
   - [Log validation results](#log-validation-results)
@@ -32,7 +33,7 @@ Data Quality Monitoring Tool for Big Data implemented using Spark
 Include dependency:
 
 ```scala
-"com.github.piotr-kalanski" % "data-quality-monitoring_2.11" % "0.1.0"
+"com.github.piotr-kalanski" % "data-quality-monitoring_2.11" % "0.2.1"
 ```
 
 or
@@ -41,7 +42,7 @@ or
 <dependency>
     <groupId>com.github.piotr-kalanski</groupId>
     <artifactId>data-quality-monitoring_2.11</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.1</version>
 </dependency>
 ```
 
@@ -57,10 +58,10 @@ Data quality monitoring process consists from below steps:
 
 Configuration can be loaded from:
 - file
+- directory
 - RDBMS
 
 Additionally there are plans to support:
-- directory
 - Dynamo DB
 
 ### Example configuration
@@ -120,6 +121,12 @@ import com.datawizards.dqm.configuration.loader.FileConfigurationLoader
 val configurationLoader = new FileConfigurationLoader("configuration.conf")
 configurationLoader.loadConfiguration()
 ```
+
+### Load configuration from directory
+
+Use class: `DirectoryConfigurationLoader`.
+
+One file should contain configuration for one table (TableConfiguration).
 
 ### Load configuration from database
 
