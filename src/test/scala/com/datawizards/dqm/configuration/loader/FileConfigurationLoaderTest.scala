@@ -1,7 +1,7 @@
-package com.datawizards.dqm.configuration
+package com.datawizards.dqm.configuration.loader
 
-import com.datawizards.dqm.configuration.loader.FileConfigurationLoader
 import com.datawizards.dqm.configuration.location.HiveTableLocation
+import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, GroupByConfiguration, TableConfiguration}
 import com.datawizards.dqm.filter.FilterByYearMonthDayColumns
 import com.datawizards.dqm.rules._
 import org.junit.runner.RunWith

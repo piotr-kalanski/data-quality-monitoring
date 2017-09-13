@@ -9,6 +9,10 @@ import com.typesafe.config.{Config, ConfigList, ConfigValue}
 import scala.collection.JavaConversions._
 
 trait ConfigurationLoader {
+
+  /**
+    * Load configuration from source data store
+    */
   def loadConfiguration(): DataQualityMonitoringConfiguration
 
   protected def parseTablesConfiguration(tablesConfiguration: ConfigList): Seq[TableConfiguration] = {

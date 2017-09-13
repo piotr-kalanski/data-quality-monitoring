@@ -16,6 +16,7 @@ import scala.collection.mutable.ListBuffer
   * Expected DB schema for configurationTableName:
   * <pre>
   * CREATE TABLE VALIDATION_RULES(
+  *   tableName VARCHAR,
   *   tableConfiguration VARCHAR
   * )
   * </pre>
