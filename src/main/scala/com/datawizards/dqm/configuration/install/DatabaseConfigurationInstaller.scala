@@ -31,7 +31,8 @@ class DatabaseConfigurationInstaller(
     val deleteStatement = s"DELETE FROM $configurationTableName WHERE tableName = '$tableName'; "
     val insertStatement = s"INSERT INTO $configurationTableName VALUES('$tableName', '$tableConfiguration');"
 
-    connection.createStatement().execute(deleteStatement + insertStatement)
+    connection.createStatement().execute(deleteStatement)
+    connection.createStatement().execute(insertStatement)
     connection.close()
   }
 
