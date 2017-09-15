@@ -9,10 +9,10 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class FileConfigurationLoaderTest extends FunSuite with Matchers {
+class FileMultipleTablesConfigurationLoaderTest extends FunSuite with Matchers {
 
   test("Load configuration from file - simple") {
-    val configurationLoader = new FileConfigurationLoader(getClass.getResource("/configuration_simple.conf").getPath)
+    val configurationLoader = new FileMultipleTablesConfigurationLoader(getClass.getResource("/configuration_simple.conf").getPath)
     val expectedConfiguration = DataQualityMonitoringConfiguration(
       tablesConfiguration = Seq(
         TableConfiguration(
@@ -34,7 +34,7 @@ class FileConfigurationLoaderTest extends FunSuite with Matchers {
   }
 
   test("Load configuration from file - all rules") {
-    val configurationLoader = new FileConfigurationLoader(getClass.getResource("/configuration_all_rules.conf").getPath)
+    val configurationLoader = new FileMultipleTablesConfigurationLoader(getClass.getResource("/configuration_all_rules.conf").getPath)
     val expectedConfiguration = DataQualityMonitoringConfiguration(
       tablesConfiguration = Seq(
         TableConfiguration(
@@ -60,7 +60,7 @@ class FileConfigurationLoaderTest extends FunSuite with Matchers {
   }
 
   test("Load configuration from file - complex") {
-    val configurationLoader = new FileConfigurationLoader(getClass.getResource("/configuration_complex.conf").getPath)
+    val configurationLoader = new FileMultipleTablesConfigurationLoader(getClass.getResource("/configuration_complex.conf").getPath)
     val expectedConfiguration = DataQualityMonitoringConfiguration(
       tablesConfiguration = Seq(
         TableConfiguration(
@@ -110,7 +110,7 @@ class FileConfigurationLoaderTest extends FunSuite with Matchers {
   }
 
   test("Load configuration from file - groups") {
-    val configurationLoader = new FileConfigurationLoader(getClass.getResource("/configuration_with_groups.conf").getPath)
+    val configurationLoader = new FileMultipleTablesConfigurationLoader(getClass.getResource("/configuration_with_groups.conf").getPath)
     val expectedConfiguration = DataQualityMonitoringConfiguration(
       tablesConfiguration = Seq(
         TableConfiguration(
@@ -136,7 +136,7 @@ class FileConfigurationLoaderTest extends FunSuite with Matchers {
   }
 
   test("Load configuration from file - groups with rules") {
-    val configurationLoader = new FileConfigurationLoader(getClass.getResource("/configuration_with_groups_rules.conf").getPath)
+    val configurationLoader = new FileMultipleTablesConfigurationLoader(getClass.getResource("/configuration_with_groups_rules.conf").getPath)
     val expectedConfiguration = DataQualityMonitoringConfiguration(
       tablesConfiguration = Seq(
         TableConfiguration(

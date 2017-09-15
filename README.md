@@ -33,7 +33,7 @@ Data Quality Monitoring Tool for Big Data implemented using Spark
 Include dependency:
 
 ```scala
-"com.github.piotr-kalanski" % "data-quality-monitoring_2.11" % "0.2.1"
+"com.github.piotr-kalanski" % "data-quality-monitoring_2.11" % "0.2.3"
 ```
 
 or
@@ -42,7 +42,7 @@ or
 <dependency>
     <groupId>com.github.piotr-kalanski</groupId>
     <artifactId>data-quality-monitoring_2.11</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.3</version>
 </dependency>
 ```
 
@@ -113,12 +113,12 @@ tablesConfiguration = [
 
 ### Load configuration from file
 
-Use class: ```FileConfigurationLoader```.
+Use class: ```FileSingleTableConfigurationLoader``` or ```FileMultipleTablesConfigurationLoader```.
 
 Example:
 ```scala
-import com.datawizards.dqm.configuration.loader.FileConfigurationLoader
-val configurationLoader = new FileConfigurationLoader("configuration.conf")
+import com.datawizards.dqm.configuration.loader.FileMultipleTablesConfigurationLoader
+val configurationLoader = new FileMultipleTablesConfigurationLoader("configuration.conf")
 configurationLoader.loadConfiguration()
 ```
 
