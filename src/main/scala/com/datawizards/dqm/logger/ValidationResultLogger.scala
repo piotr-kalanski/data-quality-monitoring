@@ -10,6 +10,7 @@ trait ValidationResultLogger {
     logColumnStatistics(result.columnsStatistics)
     logGroupByStatistics(result.groupByStatisticsList)
     logInvalidGroups(result.invalidGroups)
+    logInvalidTableTrends(result.invalidTableTrends)
   }
 
   protected def logInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit
@@ -17,4 +18,5 @@ trait ValidationResultLogger {
   protected def logColumnStatistics(columnsStatistics: Seq[ColumnStatistics]): Unit
   protected def logGroupByStatistics(groupByStatisticsList: Seq[GroupByStatistics]): Unit
   protected def logInvalidGroups(invalidGroups: Seq[InvalidGroup]): Unit
+  protected def logInvalidTableTrends(invalidTableTrends: Seq[InvalidTableTrend]): Unit
 }

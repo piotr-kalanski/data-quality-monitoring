@@ -7,6 +7,7 @@ import com.datawizards.dqm.configuration.TableConfiguration
 import com.datawizards.dqm.configuration.loader.DatabaseConfigurationLoader
 import com.datawizards.dqm.configuration.location.HiveTableLocation
 import com.datawizards.dqm.rules._
+import com.datawizards.dqm.rules.field.{MaxRule, MinRule, NotNullRule}
 import com.datawizards.jdbc2class._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner

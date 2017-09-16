@@ -4,6 +4,8 @@ import com.datawizards.dqm.configuration.{GroupByConfiguration, TableConfigurati
 import com.datawizards.dqm.configuration.location.HiveTableLocation
 import com.datawizards.dqm.filter.FilterByYearMonthDayColumns
 import com.datawizards.dqm.rules._
+import com.datawizards.dqm.rules.field.{MinRule, NotNullRule}
+import com.datawizards.dqm.rules.group.NotEmptyGroups
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}

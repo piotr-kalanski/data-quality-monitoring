@@ -1,4 +1,4 @@
-package com.datawizards.dqm.rules
+package com.datawizards.dqm.rules.field
 
 trait AnyTypeComparator {
   def compare(left: Any, right: Any): Int = {

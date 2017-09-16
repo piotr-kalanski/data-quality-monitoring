@@ -11,7 +11,8 @@ import com.datawizards.esclient.repository.ElasticsearchRepositoryImpl
   * @param tableStatisticsIndexName Index name where to store table statistics
   * @param columnStatisticsIndexName Index name where to store column statistics
   * @param groupsStatisticsIndexName Index name where to store group statistics
-  * @param invalidGroupsIndexName Index name where to store group statistics
+  * @param invalidGroupsIndexName Index name where to store invalid groups records
+  * @param invalidTableTrendsIndexName Index name where to store invalid table trends records
   */
 class ElasticsearchValidationResultLogger(
                                            esUrl: String,
@@ -19,7 +20,8 @@ class ElasticsearchValidationResultLogger(
                                            tableStatisticsIndexName: String,
                                            columnStatisticsIndexName: String,
                                            groupsStatisticsIndexName: String,
-                                           invalidGroupsIndexName: String
+                                           invalidGroupsIndexName: String,
+                                           invalidTableTrendsIndexName: String
                                          ) extends ValidationResultLogger {
   private lazy val esRepository = new ElasticsearchRepositoryImpl(esUrl)
 
@@ -68,6 +70,16 @@ class ElasticsearchValidationResultLogger(
         typeName = "group",
         documentId = java.util.UUID.randomUUID().toString,
         document = group
+      )
+  }
+
+  override protected def logInvalidTableTrends(invalidTableTrends: Seq[InvalidTableTrend]): Unit = {
+    for(invalidTableTrend <- invalidTableTrends)
+      esRepository.index(
+        indexName = invalidTableTrendsIndexName,
+        typeName = "invalid_trend",
+        documentId = java.util.UUID.randomUUID().toString,
+        document = invalidTableTrend
       )
   }
 

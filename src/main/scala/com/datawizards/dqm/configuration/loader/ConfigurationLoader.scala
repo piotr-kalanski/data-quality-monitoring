@@ -1,9 +1,14 @@
 package com.datawizards.dqm.configuration.loader
 
+import java.util
+
 import com.datawizards.dqm.configuration.location.{HiveTableLocation, TableLocation}
 import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, GroupByConfiguration, TableConfiguration}
 import com.datawizards.dqm.filter.{FilterByProcessingDateStrategy, FilterByYearMonthDayColumns}
 import com.datawizards.dqm.rules._
+import com.datawizards.dqm.rules.field._
+import com.datawizards.dqm.rules.group.{GroupRule, NotEmptyGroups}
+import com.datawizards.dqm.rules.trend.{CurrentVsPreviousDayRowCountIncrease, TableTrendRule}
 import com.typesafe.config.{Config, ConfigList, ConfigValue}
 
 import scala.collection.JavaConversions._
@@ -44,10 +49,15 @@ trait ConfigurationLoader {
   }
 
   private def parseTableRules(tableRules: Config): TableRules = {
-    val rowRulesConfigList = tableRules.getConfigList("rowRules")
-    val rowRules = for(fieldRules <- rowRulesConfigList)
+    TableRules(
+      rowRules = parseRowRules(tableRules.getConfigList("rowRules")),
+      tableTrendRules = parseTableTrendRules(tableRules)
+    )
+  }
+
+  private def parseRowRules(rowRulesConfigList: util.List[_ <: Config]): Seq[FieldRules] = {
+    for(fieldRules <- rowRulesConfigList)
       yield parseFieldRules(fieldRules)
-    TableRules(rowRules = rowRules)
   }
 
   private def parseFieldRules(fieldRules: Config): FieldRules = {
@@ -114,6 +124,22 @@ trait ConfigurationLoader {
   private def parseGroupRule(cfg: Config): GroupRule = {
     val ruleType = cfg.getString("type")
     if(ruleType == "NotEmptyGroups") NotEmptyGroups(cfg.getStringList("expectedGroups"))
+    else throw new RuntimeException("Not supported type: " + ruleType)
+  }
+
+  private def parseTableTrendRules(tableRulesConfig: Config): Seq[TableTrendRule] = {
+    val tableTrendRulesPath = "tableTrendRules"
+    if(!tableRulesConfig.hasPath(tableTrendRulesPath)) Seq.empty
+    else {
+      val tableTrendRulesConfigList = tableRulesConfig.getConfigList(tableTrendRulesPath)
+      for(tableTrendRule <- tableTrendRulesConfigList)
+        yield parseTableTrendRule(tableTrendRule)
+    }
+  }
+
+  private def parseTableTrendRule(cfg: Config): TableTrendRule = {
+    val ruleType = cfg.getString("type")
+    if(ruleType == "CurrentVsPreviousDayRowCountIncrease") CurrentVsPreviousDayRowCountIncrease(cfg.getInt("tresholdPercentage"))
     else throw new RuntimeException("Not supported type: " + ruleType)
   }
 

@@ -1,8 +1,15 @@
-package com.datawizards.dqm.alert
+package com.datawizards.dqm.mocks
 
+import com.datawizards.dqm.alert.AlertSender
 import com.datawizards.dqm.result._
 
-object DevNullAlertSender extends AlertSender {
+import scala.collection.mutable.ListBuffer
+
+class StaticAlertSender extends AlertSender {
+  val results = new ListBuffer[ValidationResult]
+
+  override def send(result: ValidationResult): Unit =
+    results += result
 
   override protected def sendAlertEmptyTable(tableStatistics: TableStatistics): Unit = { /* do nothing */ }
 
@@ -11,4 +18,6 @@ object DevNullAlertSender extends AlertSender {
   override protected def sendAlertInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit = { /* do nothing */ }
 
   override protected def sendAlertInvalidGroups(invalidGroups: Seq[InvalidGroup]): Unit = { /* do nothing */ }
+
+  override protected def sendAlertInvalidTableTrends(invalidTableTrends: Seq[InvalidTableTrend]): Unit = { /* do nothing */ }
 }

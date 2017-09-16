@@ -1,5 +1,6 @@
-package com.datawizards.dqm.logger
+package com.datawizards.dqm.mocks
 
+import com.datawizards.dqm.logger.ValidationResultLogger
 import com.datawizards.dqm.result._
 
 import scala.collection.mutable.ListBuffer
@@ -20,4 +21,5 @@ class StaticValidationResultLogger extends ValidationResultLogger {
 
   override protected def logInvalidGroups(invalidGroups: Seq[InvalidGroup]): Unit = { /* do nothing */ }
 
+  override protected def logInvalidTableTrends(invalidTableTrends: Seq[InvalidTableTrend]): Unit = { /* do nothing */ }
 }

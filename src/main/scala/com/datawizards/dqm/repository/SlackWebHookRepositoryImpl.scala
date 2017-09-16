@@ -1,6 +1,6 @@
 package com.datawizards.dqm.repository
 
-import com.datawizards.dqm.dto.SlackMessage
+import com.datawizards.dqm.alert.dto.SlackMessage
 import org.json4s.{DefaultFormats, Formats}
 
 import scalaj.http._

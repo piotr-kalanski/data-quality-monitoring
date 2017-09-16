@@ -1,4 +1,5 @@
-package com.datawizards.dqm.rules
+package com.datawizards.dqm.rules.field
+
 import org.apache.spark.sql.Row
 
 case object NotNullRule extends FieldRule {

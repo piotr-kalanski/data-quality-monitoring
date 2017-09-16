@@ -1,4 +1,5 @@
-package com.datawizards.dqm.rules
+package com.datawizards.dqm.rules.group
+
 import com.datawizards.dqm.configuration.ValidationContext
 import com.datawizards.dqm.result.{GroupByStatistics, InvalidGroup}
 

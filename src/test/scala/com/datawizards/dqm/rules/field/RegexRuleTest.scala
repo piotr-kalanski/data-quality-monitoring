@@ -1,6 +1,6 @@
-package com.datawizards.dqm.rules
+package com.datawizards.dqm.rules.field
 
-import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner

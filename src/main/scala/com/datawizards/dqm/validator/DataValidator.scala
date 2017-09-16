@@ -1,10 +1,10 @@
 package com.datawizards.dqm.validator
 
-import java.sql.Date
-
 import com.datawizards.dqm.configuration.{GroupByConfiguration, TableConfiguration, ValidationContext}
+import com.datawizards.dqm.history.HistoryStatisticsReader
 import com.datawizards.dqm.result._
-import com.datawizards.dqm.rules.TableRules
+import com.datawizards.dqm.rules.FieldRules
+import com.datawizards.dqm.rules.trend.TableTrendRule
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Column, DataFrame, Row}
@@ -16,9 +16,12 @@ object DataValidator {
 
   private val countColumn = "count"
 
-  def validate(tableConfiguration: TableConfiguration, context: ValidationContext): ValidationResult = {
+  def validate(
+                tableConfiguration: TableConfiguration,
+                context: ValidationContext,
+                historyStatisticsReader: HistoryStatisticsReader
+              ): ValidationResult = {
     val tableLocation = tableConfiguration.location
-    val tableRules = tableConfiguration.rules
     val filterByProcessingDateStrategy = tableConfiguration.filterByProcessingDateStrategy
     val input = tableLocation.load()
     val df = if(filterByProcessingDateStrategy.isDefined) filterByProcessingDateStrategy.get.filter(input, context.processingDate) else input
@@ -27,20 +30,21 @@ object DataValidator {
     val rowsCount = calculateRowsCount(aggregate)
     val (groupByStatisticsList, invalidGroups) = calculateGroupByStatistics(df, context, tableConfiguration.groups)
     ValidationResult(
-      invalidRecords = calculateInvalidRecords(df, context, tableRules),
+      invalidRecords = calculateInvalidRecords(df, context, tableConfiguration.rules.rowRules),
       tableStatistics = calculateTableStatistics(df, context, rowsCount),
       columnsStatistics = calculateColumnStatistics(context, rowsCount, fields, aggregate),
       groupByStatisticsList = groupByStatisticsList,
-      invalidGroups = invalidGroups
+      invalidGroups = invalidGroups,
+      invalidTableTrends = calculateInvalidTableTrends(historyStatisticsReader, context, tableConfiguration.rules.tableTrendRules)
     )
   }
 
-  private def calculateInvalidRecords(input: DataFrame, context: ValidationContext, tableRules: TableRules): Array[InvalidRecord] = {
+  private def calculateInvalidRecords(input: DataFrame, context: ValidationContext, rowRules: Seq[FieldRules]): Array[InvalidRecord] = {
     val spark = input.sparkSession
     import spark.implicits._
 
     input.flatMap{row =>
-      tableRules.rowRules.flatMap{fieldRules => {
+      rowRules.flatMap{fieldRules => {
         val field = fieldRules.field
 
         fieldRules
@@ -200,4 +204,19 @@ object DataValidator {
 
     (groupByStatisticsListBuffer.toList, invalidGroupsBuffer.toList)
   }
+
+  private def calculateInvalidTableTrends(
+                                           historyStatisticsReader: HistoryStatisticsReader,
+                                           context: ValidationContext,
+                                           tableTrendRules: Seq[TableTrendRule]
+                                         ): Seq[InvalidTableTrend] = {
+    if(tableTrendRules.isEmpty) Seq.empty
+    else {
+      val tableStatistics = historyStatisticsReader.readTableStatistics(context.tableName)
+      tableTrendRules
+        .map(r => r.validate(tableStatistics, context))
+        .reduce(_ ++ _)
+    }
+  }
+
 }

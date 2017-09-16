@@ -1,13 +1,14 @@
 package com.datawizards.dqm
 
 import java.sql.Date
-import com.datawizards.dqm.alert.DevNullAlertSender
+
 import com.datawizards.dqm.configuration.loader.StaticConfigurationLoader
 import com.datawizards.dqm.configuration.location.StaticTableLocation
 import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, TableConfiguration}
-import com.datawizards.dqm.logger.StaticValidationResultLogger
+import com.datawizards.dqm.mocks.{EmptyHistoryStatisticsReader, StaticAlertSender, StaticValidationResultLogger}
 import com.datawizards.dqm.result.{ColumnStatistics, InvalidRecord, TableStatistics, ValidationResult}
-import com.datawizards.dqm.rules.{FieldRules, NotNullRule, TableRules}
+import com.datawizards.dqm.rules.field.NotNullRule
+import com.datawizards.dqm.rules.{FieldRules, TableRules}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.junit.runner.RunWith
@@ -46,11 +47,12 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
       )
     )
     val logger = new StaticValidationResultLogger()
-    val alertSender = DevNullAlertSender
+    val alertSender = new StaticAlertSender()
+    val historyStatisticsReader = EmptyHistoryStatisticsReader
     val processingDate = Date.valueOf("2000-01-02")
-    DataQualityMonitor.run(processingDate, configurationLoader, logger, alertSender)
+    DataQualityMonitor.run(processingDate, configurationLoader, historyStatisticsReader, logger, alertSender)
 
-    logger.results.head should equal(ValidationResult(
+    val expectedResult = ValidationResult(
       invalidRecords = Seq(
         InvalidRecord(
           tableName = "table",
@@ -106,7 +108,9 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           day = 2
         )
       )
-    ))
+    )
+    logger.results.head should equal(expectedResult)
+    alertSender.results.head should equal(expectedResult)
   }
 
 }

@@ -1,12 +1,12 @@
-package com.datawizards.dqm.rules
+package com.datawizards.dqm.rules.group
 
 import java.sql.Date
 
 import com.datawizards.dqm.configuration.ValidationContext
 import com.datawizards.dqm.result.{GroupByStatistics, InvalidGroup}
 import org.junit.runner.RunWith
-import org.scalatest.{FunSuite, Matchers}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class NotEmptyGroupsTest extends FunSuite with Matchers {
