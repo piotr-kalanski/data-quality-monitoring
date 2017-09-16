@@ -5,8 +5,12 @@ import java.sql.Date
 import com.datawizards.dqm.configuration.{GroupByConfiguration, TableConfiguration, ValidationContext}
 import com.datawizards.dqm.configuration.location.StaticTableLocation
 import com.datawizards.dqm.filter.FilterByYearMonthDayColumns
+import com.datawizards.dqm.mocks.{EmptyHistoryStatisticsReader, StaticHistoryStatisticsReader}
 import com.datawizards.dqm.result._
-import com.datawizards.dqm.rules.{FieldRules, NotEmptyGroups, NotNullRule, TableRules}
+import com.datawizards.dqm.rules.field.NotNullRule
+import com.datawizards.dqm.rules.group.NotEmptyGroups
+import com.datawizards.dqm.rules.trend.CurrentVsPreviousDayRowCountIncrease
+import com.datawizards.dqm.rules.{FieldRules, TableRules}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.junit.runner.RunWith
@@ -34,17 +38,21 @@ class DataValidatorTest extends FunSuite with Matchers {
     )), schema)
     val processingDate = Date.valueOf("2000-01-02")
     val input = StaticTableLocation(df, "table")
-    val result = DataValidator.validate(TableConfiguration(
-      input,
-      TableRules(Seq(
-        FieldRules(
-          field = "f2",
-          rules = Seq(
-            NotNullRule
-          )
-        ))),
-      Some(FilterByYearMonthDayColumns)
-    ), ValidationContext("table", processingDate))
+    val result = DataValidator.validate(
+      TableConfiguration(
+        input,
+        TableRules(Seq(
+          FieldRules(
+            field = "f2",
+            rules = Seq(
+              NotNullRule
+            )
+          ))),
+        Some(FilterByYearMonthDayColumns)
+      ),
+      ValidationContext("table", processingDate),
+      EmptyHistoryStatisticsReader
+    )
     result should equal(ValidationResult(
       invalidRecords = Seq(
         InvalidRecord(
@@ -163,11 +171,15 @@ class DataValidatorTest extends FunSuite with Matchers {
     )), schema)
     val processingDate = Date.valueOf("2000-01-02")
     val input = StaticTableLocation(df, "table")
-    val result = DataValidator.validate(TableConfiguration(
-      location = input,
-      rules = TableRules(Seq.empty),
-      groups = Seq(GroupByConfiguration("COUNTRY", "country"))
-    ), ValidationContext("table", processingDate))
+    val result = DataValidator.validate(
+      TableConfiguration(
+        location = input,
+        rules = TableRules(Seq.empty),
+        groups = Seq(GroupByConfiguration("COUNTRY", "country"))
+      ),
+      ValidationContext("table", processingDate),
+      EmptyHistoryStatisticsReader
+    )
     result.copy(groupByStatisticsList = result.groupByStatisticsList.sortBy(_.groupByFieldValue)) should equal(ValidationResult(
       invalidRecords = Seq.empty,
       tableStatistics = TableStatistics(
@@ -236,12 +248,16 @@ class DataValidatorTest extends FunSuite with Matchers {
     )), schema)
     val processingDate = Date.valueOf("2000-01-02")
     val input = StaticTableLocation(df, "table")
-    val result = DataValidator.validate(TableConfiguration(
-      location = input,
-      rules = TableRules(Seq.empty),
-      groups = Seq(GroupByConfiguration("COUNTRY", "country", Seq(NotEmptyGroups(Seq("country1","country2","country3")))))
-    ), ValidationContext("table", processingDate))
-    result.copy(groupByStatisticsList = result.groupByStatisticsList.sortBy(_.groupByFieldValue)) should equal(ValidationResult(
+    val result = DataValidator.validate(
+      TableConfiguration(
+        location = input,
+        rules = TableRules(Seq.empty),
+        groups = Seq(GroupByConfiguration("COUNTRY", "country", Seq(NotEmptyGroups(Seq("country1","country2","country3")))))
+      ),
+      ValidationContext("table", processingDate),
+      EmptyHistoryStatisticsReader
+    )
+    val expectedValidationResult = ValidationResult(
       invalidRecords = Seq.empty,
       tableStatistics = TableStatistics(
         tableName = "table",
@@ -295,8 +311,93 @@ class DataValidatorTest extends FunSuite with Matchers {
           day = 2
         )
       )
-    ))
-
+    )
+    result.copy(groupByStatisticsList = result.groupByStatisticsList.sortBy(_.groupByFieldValue)) should equal(expectedValidationResult)
   }
+
+  test("Validate records - table trends") {
+    val schema = StructType(Seq(
+      StructField("country", StringType)
+    ))
+    val df = spark.createDataFrame(spark.sparkContext.parallelize(Seq(
+      Row("country1"),
+      Row("country1"),
+      Row("country1"),
+      Row("country2"),
+      Row("country2"),
+      Row("country3")
+    )), schema)
+    val processingDate = Date.valueOf("2000-01-02")
+    val input = StaticTableLocation(df, "table")
+    val result = DataValidator.validate(
+      TableConfiguration(
+        location = input,
+        rules = TableRules(
+          rowRules = Seq.empty,
+          tableTrendRules = Seq(
+            CurrentVsPreviousDayRowCountIncrease(10)
+          )
+        )
+      ),
+      ValidationContext("table", processingDate),
+      new StaticHistoryStatisticsReader(Map(
+        "table" -> Seq(
+          TableStatistics(
+            tableName = "table",
+            rowsCount = 1,
+            columnsCount = 1,
+            year = 2000,
+            month = 1,
+            day = 1
+          ),
+          TableStatistics(
+            tableName = "table",
+            rowsCount = 5,
+            columnsCount = 1,
+            year = 2000,
+            month = 1,
+            day = 2
+          )
+        )
+      ))
+    )
+    val expectedValidationResult = ValidationResult(
+      invalidRecords = Seq.empty,
+      tableStatistics = TableStatistics(
+        tableName = "table",
+        rowsCount = 6,
+        columnsCount = 1,
+        year = 2000,
+        month = 1,
+        day = 2
+      ),
+      columnsStatistics = Seq(
+        ColumnStatistics(
+          tableName = "table",
+          columnName = "country",
+          columnType = "StringType",
+          notMissingCount = 6L,
+          rowsCount = 6L,
+          percentageNotMissing = 6.0/6.0,
+          year = 2000,
+          month = 1,
+          day = 2
+        )
+      ),
+      groupByStatisticsList = Seq.empty,
+      invalidTableTrends = Seq(
+        InvalidTableTrend(
+          tableName = "table",
+          rule = "CurrentVsPreviousDayRowCountIncrease",
+          comment = "1 -> 5 rows",
+          year = 2000,
+          month = 1,
+          day = 2
+        )
+      )
+    )
+    result should equal(expectedValidationResult)
+  }
+
 
 }

@@ -4,6 +4,9 @@ import com.datawizards.dqm.configuration.location.HiveTableLocation
 import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, GroupByConfiguration, TableConfiguration}
 import com.datawizards.dqm.filter.FilterByYearMonthDayColumns
 import com.datawizards.dqm.rules._
+import com.datawizards.dqm.rules.field._
+import com.datawizards.dqm.rules.group.NotEmptyGroups
+import com.datawizards.dqm.rules.trend.CurrentVsPreviousDayRowCountIncrease
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
@@ -154,6 +157,31 @@ class FileMultipleTablesConfigurationLoaderTest extends FunSuite with Matchers {
           groups = Seq(
             GroupByConfiguration("COUNTRY", "country", Seq(NotEmptyGroups(Seq("c1","c2","c3","c4")))),
             GroupByConfiguration("GENDER", "gender")
+          )
+        )
+      )
+    )
+    configurationLoader.loadConfiguration() should equal(expectedConfiguration)
+  }
+
+  test("Load configuration from file - table trend rule") {
+    val configurationLoader = new FileMultipleTablesConfigurationLoader(getClass.getResource("/configuration_table_trend_rules.conf").getPath)
+    val expectedConfiguration = DataQualityMonitoringConfiguration(
+      tablesConfiguration = Seq(
+        TableConfiguration(
+          location = HiveTableLocation("clients"),
+          rules = TableRules(
+            rowRules = Seq(
+              FieldRules(
+                field = "client_id",
+                rules = Seq(
+                  NotNullRule
+                )
+              )
+            ),
+            tableTrendRules = Seq(
+              CurrentVsPreviousDayRowCountIncrease(20)
+            )
           )
         )
       )

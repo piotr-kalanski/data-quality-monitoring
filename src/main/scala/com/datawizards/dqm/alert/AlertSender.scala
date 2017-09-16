@@ -14,11 +14,14 @@ trait AlertSender {
       sendAlertInvalidRecords(result.invalidRecords)
     if(result.invalidGroups.nonEmpty)
       sendAlertInvalidGroups(result.invalidGroups)
+    if(result.invalidTableTrends.nonEmpty)
+      sendAlertInvalidTableTrends(result.invalidTableTrends)
   }
 
   protected def sendAlertEmptyTable(tableStatistics: TableStatistics): Unit
   protected def sendAlertEmptyColumns(emptyColumns: Seq[ColumnStatistics]): Unit
   protected def sendAlertInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit
   protected def sendAlertInvalidGroups(invalidGroups: Seq[InvalidGroup]): Unit
+  protected def sendAlertInvalidTableTrends(invalidTableTrends: Seq[InvalidTableTrend]): Unit
 
 }

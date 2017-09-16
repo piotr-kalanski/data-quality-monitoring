@@ -1,4 +1,4 @@
-package com.datawizards.dqm.dto
+package com.datawizards.dqm.alert.dto
 
 case class SlackMessage(
                          text: String,

@@ -1,4 +1,4 @@
-package com.datawizards.dqm.rules
+package com.datawizards.dqm.rules.field
 
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.junit.runner.RunWith

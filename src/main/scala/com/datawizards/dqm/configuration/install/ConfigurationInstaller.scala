@@ -4,6 +4,8 @@ import com.datawizards.dqm.configuration.{GroupByConfiguration, TableConfigurati
 import com.datawizards.dqm.configuration.location.{HiveTableLocation, TableLocation}
 import com.datawizards.dqm.filter.{FilterByProcessingDateStrategy, FilterByYearMonthDayColumns}
 import com.datawizards.dqm.rules._
+import com.datawizards.dqm.rules.field._
+import com.datawizards.dqm.rules.group.{GroupRule, NotEmptyGroups}
 
 trait ConfigurationInstaller {
 

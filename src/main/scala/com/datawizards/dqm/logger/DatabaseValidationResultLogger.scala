@@ -80,6 +80,18 @@ import com.datawizards.class2jdbc._
   *   )
   * </pre>
   *
+  * Expected DB schema for invalidTableTrendsTableName:
+  * <pre>
+  *   CREATE TABLE INVALID_TABLE_TRENDS(
+  *     tableName VARCHAR,
+  *     rule VARCHAR,
+  *     comment VARCHAR,
+  *     year INTEGER,
+  *     month INTEGER,
+  *     day INTEGER
+  *   )
+  * </pre>
+  *
   * @param driverClassName JDBC driver class name
   * @param dbUrl DB connection string
   * @param connectionProperties JDBC connection properties, especially user and password
@@ -88,6 +100,7 @@ import com.datawizards.class2jdbc._
   * @param columnStatisticsTableName name of table where to insert column statistics records
   * @param groupsStatisticsTableName name of table where to insert group by statistics records
   * @param invalidGroupsTableName name of table where to insert invalid groups
+  * @param invalidTableTrendsTableName name of table where to insert invalid table trends
   */
 class DatabaseValidationResultLogger(
                                       driverClassName: String,
@@ -97,7 +110,8 @@ class DatabaseValidationResultLogger(
                                       tableStatisticsTableName: String,
                                       columnStatisticsTableName: String,
                                       groupsStatisticsTableName: String,
-                                      invalidGroupsTableName: String
+                                      invalidGroupsTableName: String,
+                                      invalidTableTrendsTableName: String
                                     ) extends ValidationResultLogger {
 
   override protected def logInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit = {
@@ -120,11 +134,14 @@ class DatabaseValidationResultLogger(
     executeInserts(generateInserts(invalidGroups, invalidGroupsTableName))
   }
 
+  override protected def logInvalidTableTrends(invalidTableTrends: Seq[InvalidTableTrend]): Unit = {
+    executeInserts(generateInserts(invalidTableTrends, invalidTableTrendsTableName))
+  }
+
   private def executeInserts(inserts: Traversable[String]): Unit = {
     Class.forName(driverClassName)
     val connection = DriverManager.getConnection(dbUrl, connectionProperties)
     connection.createStatement().execute(inserts.mkString(";"))
     connection.close()
   }
-
 }

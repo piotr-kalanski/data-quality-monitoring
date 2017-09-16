@@ -1,8 +1,8 @@
-package com.datawizards.dqm.rules
+package com.datawizards.dqm.rules.field
 
+import com.datawizards.dqm.rules.BusinessRule
 import org.apache.spark.sql.Row
 
 trait FieldRule extends BusinessRule {
-  def name: String
   def validate(field: String, row: Row): Boolean
 }

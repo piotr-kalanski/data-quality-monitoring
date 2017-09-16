@@ -17,4 +17,5 @@ class CompositeValidationLogger(loggers: Seq[ValidationResultLogger]) extends Va
 
   override protected def logInvalidGroups(invalidGroups: Seq[InvalidGroup]): Unit = { /* do nothing */ }
 
+  override protected def logInvalidTableTrends(invalidTableTrends: Seq[InvalidTableTrend]): Unit = { /* do nothing */ }
 }

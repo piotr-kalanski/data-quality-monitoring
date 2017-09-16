@@ -6,6 +6,7 @@ import java.util.Properties
 import com.datawizards.dqm.configuration.location.HiveTableLocation
 import com.datawizards.dqm.configuration.{DataQualityMonitoringConfiguration, TableConfiguration}
 import com.datawizards.dqm.rules._
+import com.datawizards.dqm.rules.field.{MaxRule, MinRule, NotNullRule}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}

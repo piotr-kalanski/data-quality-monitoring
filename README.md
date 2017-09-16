@@ -18,6 +18,9 @@ Data Quality Monitoring Tool for Big Data implemented using Spark
     - [Load configuration from directory](#load-configuration-from-directory)
     - [Load configuration from database](#load-configuration-from-database)
   - [Validation rules](#validation-rules)
+    - [Field rules](#field-rules)
+    - [Group rules](#group-rules)
+    - [Table trend rules](#table-trend-rules)
   - [Log validation results](#log-validation-results)
   - [Send alerts](#send-alerts)
 - [Full example](#full-example)
@@ -33,7 +36,7 @@ Data Quality Monitoring Tool for Big Data implemented using Spark
 Include dependency:
 
 ```scala
-"com.github.piotr-kalanski" % "data-quality-monitoring_2.11" % "0.2.3"
+"com.github.piotr-kalanski" % "data-quality-monitoring_2.11" % "0.3.0"
 ```
 
 or
@@ -42,7 +45,7 @@ or
 <dependency>
     <groupId>com.github.piotr-kalanski</groupId>
     <artifactId>data-quality-monitoring_2.11</artifactId>
-    <version>0.2.3</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
@@ -136,7 +139,32 @@ One table row should contain configuration for one table (TableConfiguration).
 
 ## Validation rules
 
-Supported validation rules:
+Currently supported categories of data validation rules:
+- field rules - validating value of single field e.g.: not null, min value, max value
+- group rules - validating result of group by expression e.g.: expected groups (countries, types)
+- table trend rules - validating table trend rules e.g.: comparing current day row count vs previous day row count
+
+### Field rules
+
+Field rules should be defined in section ```rules.rowRules```:
+
+```
+tablesConfiguration = [
+  {
+    location = [...],
+    rules = {
+      rowRules = [
+        {
+          field = Field name,
+          rules = [...]
+        }
+      ]
+    }
+  }
+]
+```
+
+Supported field validation rules:
 - not null
 
     ```{type = NotNull}```
@@ -156,6 +184,59 @@ Supported validation rules:
 - max value
 
     ```{type = max, value = 100}```
+
+### Group rules
+
+Group rules should be defined in section ```groups.rules```:
+
+```
+tablesConfiguration = [
+  {
+    location = [...],
+    rules = [...],
+    groups = [
+      {
+        name = Group name,
+        field = Group by field name,
+        rules = [
+          {
+            type = NotEmptyGroups,
+            expectedGroups = [c1,c2,c3,c4]
+          }
+        ]
+      }
+    ]
+  }
+]
+```
+
+Supported group validation rules:
+- not empty groups
+
+    ```{type = NotEmptyGroups, expectedGroups = [c1,c2,c3,c4]}```
+
+### Table trend rules
+
+Table trend rules should be defined in section ```rules.tableTrendRules```:
+
+```
+tablesConfiguration = [
+  {
+    location = [...],
+    rules = {
+      rowRules = [...],
+      tableTrendRules = [
+        {type = CurrentVsPreviousDayRowCountIncrease, tresholdPercentage = 20}
+      ]
+    }
+  }
+]
+```
+
+Supported table trends validation rules:
+- current vs previous day row count
+
+    ```{type = CurrentVsPreviousDayRowCountIncrease, tresholdPercentage = 20}```
 
 ## Log validation results
 
