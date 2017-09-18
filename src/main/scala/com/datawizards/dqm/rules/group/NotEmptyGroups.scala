@@ -7,13 +7,13 @@ case class NotEmptyGroups(expectedGroups: Seq[String]) extends GroupRule {
 
   override def name: String = "NotEmptyGroups"
 
-  override def validate(groupByStatisticsList: Seq[GroupByStatistics], context: ValidationContext): Seq[InvalidGroup] = {
+  override def validate(groupByStatisticsList: Seq[GroupByStatistics], context: ValidationContext, groupName: String): Seq[InvalidGroup] = {
     expectedGroups
         .withFilter(g => groupByStatisticsList.forall(_.groupByFieldValue != g))
         .map{g =>
           InvalidGroup(
             tableName = context.tableName,
-            groupName = groupByStatisticsList.head.groupName,
+            groupName = groupName,
             groupValue = Some(g),
             rule = name,
             year = context.processingYear,
