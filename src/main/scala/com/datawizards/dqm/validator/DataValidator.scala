@@ -199,7 +199,7 @@ object DataValidator {
       )}
       groupByStatisticsListBuffer ++= groupByStatisticsList
       for(groupRule <- group.rules)
-        invalidGroupsBuffer ++= groupRule.validate(groupByStatisticsList, context)
+        invalidGroupsBuffer ++= groupRule.validate(groupByStatisticsList, context, group.groupName)
     }
 
     (groupByStatisticsListBuffer.toList, invalidGroupsBuffer.toList)

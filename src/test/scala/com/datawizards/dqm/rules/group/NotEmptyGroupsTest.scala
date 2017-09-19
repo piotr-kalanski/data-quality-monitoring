@@ -53,6 +53,6 @@ class NotEmptyGroupsTest extends FunSuite with Matchers {
       )
     )
     val processingDate = Date.valueOf("2000-01-02")
-    rule.validate(statistics, ValidationContext("t1", processingDate)) should equal(expectedInvalidGroups)
+    rule.validate(statistics, ValidationContext("t1", processingDate), "country") should equal(expectedInvalidGroups)
   }
 }

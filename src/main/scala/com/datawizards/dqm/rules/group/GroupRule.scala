@@ -5,5 +5,5 @@ import com.datawizards.dqm.result.{GroupByStatistics, InvalidGroup}
 import com.datawizards.dqm.rules.BusinessRule
 
 trait GroupRule extends BusinessRule {
-  def validate(groupByStatisticsList: Seq[GroupByStatistics], context: ValidationContext): Seq[InvalidGroup]
+  def validate(groupByStatisticsList: Seq[GroupByStatistics], context: ValidationContext, groupName: String): Seq[InvalidGroup]
 }

@@ -16,7 +16,7 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
   private val columnStatisticsIndexName = "column_statistics"
   private val groupsStatisticsIndexName = "group_statistics"
   private val invalidGroupsIndexName = "invalid_groups"
-  private val invalidTableTrendsIndexName = "invalid_groups"
+  private val invalidTableTrendsIndexName = "invalid_table_trends"
   private val logger = new ElasticsearchValidationResultLogger(
     esUrl,
     invalidRecordsIndexName,
@@ -57,7 +57,7 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
       )
     )
     val tableStatistics = TableStatistics(
-      tableName = "t1",
+      tableName = "table",
       rowsCount = 5,
       columnsCount = 3,
       year = 2000,
@@ -66,7 +66,7 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
     )
     val columnsStatistics = Seq(
       ColumnStatistics(
-        tableName = "t1",
+        tableName = "table",
         columnName = "c1",
         columnType = "StringType",
         notMissingCount = 10,
@@ -77,7 +77,7 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
         day = 2
       ),
       ColumnStatistics(
-        tableName = "t1",
+        tableName = "table",
         columnName = "c2",
         columnType = "IntType",
         notMissingCount = 30,
@@ -181,7 +181,7 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
     resultInvalidGroups.hits.toSeq.sortBy(_.groupValue) should equal(invalidGroups)
 
     val resultInvalidTableTrends = repository.search[InvalidTableTrend](invalidTableTrendsIndexName)
-    resultInvalidTableTrends.hits.toSeq.sortBy(_.comment) should equal(invalidGroups)
+    resultInvalidTableTrends.hits.toSeq.sortBy(_.comment) should equal(invalidTableTrends)
   }
 
 }
