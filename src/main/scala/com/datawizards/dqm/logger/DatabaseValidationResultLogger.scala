@@ -115,33 +115,48 @@ class DatabaseValidationResultLogger(
                                     ) extends ValidationResultLogger {
 
   override protected def logInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit = {
-    executeInserts(generateInserts(invalidRecords, invalidRecordsTableName))
+    executeStatements(generateInserts(invalidRecords, invalidRecordsTableName))
   }
 
   override protected def logTableStatistics(tableStatistics: TableStatistics): Unit = {
-    executeInserts(generateInserts(Seq(tableStatistics), tableStatisticsTableName))
+    val tableStatisticsList = Seq(tableStatistics)
+    executeStatements(
+      generateDeletes(tableStatisticsList, tableStatisticsTableName){
+        t => s"tableName = '${t.tableName}' AND year = ${t.year} AND month = ${t.month} AND day = ${t.day}"
+      } ++ generateInserts(tableStatisticsList, tableStatisticsTableName)
+    )
   }
 
   override protected def logColumnStatistics(columnsStatistics: Seq[ColumnStatistics]): Unit = {
-    executeInserts(generateInserts(columnsStatistics, columnStatisticsTableName))
+    executeStatements(
+      generateDeletes(columnsStatistics, columnStatisticsTableName){
+        t => s"tableName = '${t.tableName}' AND columnName = '${t.columnName}' AND year = ${t.year} AND month = ${t.month} AND day = ${t.day}"
+      } ++ generateInserts(columnsStatistics, columnStatisticsTableName)
+    )
   }
 
   override protected def logGroupByStatistics(groupByStatisticsList: Seq[GroupByStatistics]): Unit = {
-    executeInserts(generateInserts(groupByStatisticsList, groupsStatisticsTableName))
+    executeStatements(generateInserts(groupByStatisticsList, groupsStatisticsTableName))
   }
 
   override protected def logInvalidGroups(invalidGroups: Seq[InvalidGroup]): Unit = {
-    executeInserts(generateInserts(invalidGroups, invalidGroupsTableName))
+    executeStatements(generateInserts(invalidGroups, invalidGroupsTableName))
   }
 
   override protected def logInvalidTableTrends(invalidTableTrends: Seq[InvalidTableTrend]): Unit = {
-    executeInserts(generateInserts(invalidTableTrends, invalidTableTrendsTableName))
+    executeStatements(generateInserts(invalidTableTrends, invalidTableTrendsTableName))
   }
 
-  private def executeInserts(inserts: Traversable[String]): Unit = {
+  private def executeStatements(statements: Traversable[String]): Unit = {
     Class.forName(driverClassName)
     val connection = DriverManager.getConnection(dbUrl, connectionProperties)
-    connection.createStatement().execute(inserts.mkString(";"))
+    for(statement <- statements)
+      connection.createStatement().execute(statement)
     connection.close()
   }
+
+  private def generateDeletes[T](data: Seq[T], table: String)(whereCondition: T => String): Traversable[String] = {
+    data.map(d => s"DELETE FROM $table WHERE ${whereCondition(d)}")
+  }
+
 }

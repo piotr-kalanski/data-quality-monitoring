@@ -218,7 +218,6 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
     val resultGroupByStatisticsList = selectTable[GroupByStatistics](connection, "GROUP_STATISTICS")._1
     val resultInvalidGroups = selectTable[InvalidGroup](connection, "INVALID_GROUPS")._1
     val resultInvalidTableTrend = selectTable[InvalidTableTrend](connection, "INVALID_TABLE_TRENDS")._1
-    connection.close()
 
     resultInvalidRecords should equal(invalidRecords)
     resultTableStatistics should equal(Seq(tableStatistics))
@@ -226,6 +225,55 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
     resultGroupByStatisticsList should equal(groupByStatisticsList)
     resultInvalidGroups should equal(invalidGroups)
     resultInvalidTableTrend should equal(invalidTableTrends)
+
+    val tableStatisticsNew = TableStatistics(
+      tableName = "t1",
+      rowsCount = 6,
+      columnsCount = 5,
+      year = 2000,
+      month = 1,
+      day = 2
+    )
+    val columnsStatisticsNew = Seq(
+      ColumnStatistics(
+        tableName = "t1",
+        columnName = "c1",
+        columnType = "StringType",
+        notMissingCount = 12,
+        rowsCount = 20,
+        percentageNotMissing = 50.0,
+        year = 2000,
+        month = 1,
+        day = 2
+      ),
+      ColumnStatistics(
+        tableName = "t1",
+        columnName = "c2",
+        columnType = "IntType",
+        notMissingCount = 35,
+        rowsCount = 50,
+        percentageNotMissing = 60.0,
+        year = 2000,
+        month = 1,
+        day = 2
+      )
+    )
+    logger.log(ValidationResult(
+      invalidRecords = invalidRecords,
+      tableStatistics = tableStatisticsNew,
+      columnsStatistics = columnsStatisticsNew,
+      groupByStatisticsList = groupByStatisticsList,
+      invalidGroups = invalidGroups,
+      invalidTableTrends = invalidTableTrends
+    ))
+
+    val resultTableStatisticsNew = selectTable[TableStatistics](connection, "TABLE_STATISTICS")._1
+    val resultColumnStatisticsNew = selectTable[ColumnStatistics](connection, "COLUMN_STATISTICS")._1
+
+    resultTableStatisticsNew should equal(Seq(tableStatisticsNew))
+    resultColumnStatisticsNew should equal(columnsStatisticsNew)
+
+    connection.close()
   }
 
   test("Database logger integration tests - empty invalid records") {
