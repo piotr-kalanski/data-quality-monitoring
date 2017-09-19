@@ -228,4 +228,145 @@ class DatabaseValidationResultLoggerTest extends FunSuite with Matchers {
     resultInvalidTableTrend should equal(invalidTableTrends)
   }
 
+  test("Database logger integration tests - empty invalid records") {
+    Class.forName("org.h2.Driver")
+    val connectionString = "jdbc:h2:mem:test"
+    val connection = DriverManager.getConnection(connectionString, "", "")
+    connection.createStatement().execute(
+      """CREATE TABLE INVALID_RECORDS_EMPTY_TEST(
+        |   tableName VARCHAR,
+        |   columnName VARCHAR,
+        |   row VARCHAR,
+        |   value VARCHAR,
+        |   rule VARCHAR,
+        |   year INTEGER,
+        |   month INTEGER,
+        |   day INTEGER
+        |);
+        |
+        |CREATE TABLE TABLE_STATISTICS_EMPTY_TEST(
+        |   tableName VARCHAR,
+        |   rowsCount INTEGER,
+        |   columnsCount INTEGER,
+        |   year INTEGER,
+        |   month INTEGER,
+        |   day INTEGER
+        |);
+        |
+        |CREATE TABLE COLUMN_STATISTICS_EMPTY_TEST(
+        |   tableName VARCHAR,
+        |   columnName VARCHAR,
+        |   columnType VARCHAR,
+        |   notMissingCount INTEGER,
+        |   rowsCount INTEGER,
+        |   percentageNotMissing DOUBLE,
+        |   min DOUBLE,
+        |   max DOUBLE,
+        |   avg DOUBLE,
+        |   stddev DOUBLE,
+        |   year INTEGER,
+        |   month INTEGER,
+        |   day INTEGER
+        |);
+        |
+        |CREATE TABLE GROUP_STATISTICS_EMPTY_TEST(
+        |   tableName VARCHAR,
+        |   groupName VARCHAR,
+        |   groupByFieldValue VARCHAR,
+        |   rowsCount INTEGER,
+        |   year INTEGER,
+        |   month INTEGER,
+        |   day INTEGER
+        |);
+        |
+        |CREATE TABLE INVALID_GROUPS_EMPTY_TEST(
+        |   tableName VARCHAR,
+        |   groupName VARCHAR,
+        |   groupValue VARCHAR,
+        |   rule VARCHAR,
+        |   year INTEGER,
+        |   month INTEGER,
+        |   day INTEGER
+        |);
+        |
+        |CREATE TABLE INVALID_TABLE_TRENDS_EMPTY_TEST(
+        |  tableName VARCHAR,
+        |  rule VARCHAR,
+        |  comment VARCHAR,
+        |  year INTEGER,
+        |  month INTEGER,
+        |  day INTEGER
+        |);
+      """.stripMargin)
+    val logger = new DatabaseValidationResultLogger(
+      driverClassName = "org.h2.Driver",
+      dbUrl = connectionString,
+      connectionProperties = new Properties(),
+      invalidRecordsTableName = "INVALID_RECORDS_EMPTY_TEST",
+      tableStatisticsTableName = "TABLE_STATISTICS_EMPTY_TEST",
+      columnStatisticsTableName = "COLUMN_STATISTICS_EMPTY_TEST",
+      groupsStatisticsTableName = "GROUP_STATISTICS_EMPTY_TEST",
+      invalidGroupsTableName = "INVALID_GROUPS_EMPTY_TEST",
+      invalidTableTrendsTableName = "INVALID_TABLE_TRENDS_EMPTY_TEST"
+    )
+    val invalidRecords = Seq.empty
+    val tableStatistics = TableStatistics(
+      tableName = "t1",
+      rowsCount = 5,
+      columnsCount = 3,
+      year = 2000,
+      month = 1,
+      day = 2
+    )
+    val columnsStatistics = Seq(
+      ColumnStatistics(
+        tableName = "t1",
+        columnName = "c1",
+        columnType = "StringType",
+        notMissingCount = 10,
+        rowsCount = 20,
+        percentageNotMissing = 50.0,
+        year = 2000,
+        month = 1,
+        day = 2
+      ),
+      ColumnStatistics(
+        tableName = "t1",
+        columnName = "c2",
+        columnType = "IntType",
+        notMissingCount = 30,
+        rowsCount = 50,
+        percentageNotMissing = 60.0,
+        year = 2000,
+        month = 1,
+        day = 2
+      )
+    )
+    val groupByStatisticsList = Seq.empty
+    val invalidGroups = Seq.empty
+    val invalidTableTrends = Seq.empty
+    logger.log(ValidationResult(
+      invalidRecords = invalidRecords,
+      tableStatistics = tableStatistics,
+      columnsStatistics = columnsStatistics,
+      groupByStatisticsList = groupByStatisticsList,
+      invalidGroups = invalidGroups,
+      invalidTableTrends = invalidTableTrends
+    ))
+    val resultInvalidRecords = selectTable[InvalidRecord](connection, "INVALID_RECORDS_EMPTY_TEST")._1
+    val resultTableStatistics = selectTable[TableStatistics](connection, "TABLE_STATISTICS_EMPTY_TEST")._1
+    val resultColumnStatistics = selectTable[ColumnStatistics](connection, "COLUMN_STATISTICS_EMPTY_TEST")._1
+    val resultGroupByStatisticsList = selectTable[GroupByStatistics](connection, "GROUP_STATISTICS_EMPTY_TEST")._1
+    val resultInvalidGroups = selectTable[InvalidGroup](connection, "INVALID_GROUPS_EMPTY_TEST")._1
+    val resultInvalidTableTrend = selectTable[InvalidTableTrend](connection, "INVALID_TABLE_TRENDS_EMPTY_TEST")._1
+    connection.close()
+
+    resultInvalidRecords should equal(invalidRecords)
+    resultTableStatistics should equal(Seq(tableStatistics))
+    resultColumnStatistics should equal(columnsStatistics)
+    resultGroupByStatisticsList should equal(groupByStatisticsList)
+    resultInvalidGroups should equal(invalidGroups)
+    resultInvalidTableTrend should equal(invalidTableTrends)
+  }
+
 }
