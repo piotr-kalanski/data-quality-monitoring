@@ -36,7 +36,7 @@ Data Quality Monitoring Tool for Big Data implemented using Spark
 Include dependency:
 
 ```scala
-"com.github.piotr-kalanski" % "data-quality-monitoring_2.11" % "0.3.0"
+"com.github.piotr-kalanski" % "data-quality-monitoring_2.11" % "0.3.2"
 ```
 
 or
@@ -45,7 +45,7 @@ or
 <dependency>
     <groupId>com.github.piotr-kalanski</groupId>
     <artifactId>data-quality-monitoring_2.11</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.2</version>
 </dependency>
 ```
 

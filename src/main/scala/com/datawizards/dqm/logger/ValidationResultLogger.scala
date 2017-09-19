@@ -5,12 +5,16 @@ import com.datawizards.dqm.result._
 trait ValidationResultLogger {
 
   def log(result: ValidationResult): Unit = {
-    logInvalidRecords(result.invalidRecords)
+    if(result.invalidRecords.nonEmpty)
+      logInvalidRecords(result.invalidRecords)
     logTableStatistics(result.tableStatistics)
     logColumnStatistics(result.columnsStatistics)
-    logGroupByStatistics(result.groupByStatisticsList)
-    logInvalidGroups(result.invalidGroups)
-    logInvalidTableTrends(result.invalidTableTrends)
+    if(result.groupByStatisticsList.nonEmpty)
+      logGroupByStatistics(result.groupByStatisticsList)
+    if(result.invalidGroups.nonEmpty)
+      logInvalidGroups(result.invalidGroups)
+    if(result.invalidTableTrends.nonEmpty)
+      logInvalidTableTrends(result.invalidTableTrends)
   }
 
   protected def logInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit
