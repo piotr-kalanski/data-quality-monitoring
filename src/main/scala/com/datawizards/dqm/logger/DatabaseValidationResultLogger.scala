@@ -141,7 +141,8 @@ class DatabaseValidationResultLogger(
   private def executeInserts(inserts: Traversable[String]): Unit = {
     Class.forName(driverClassName)
     val connection = DriverManager.getConnection(dbUrl, connectionProperties)
-    connection.createStatement().execute(inserts.mkString(";"))
+    for(insert <- inserts)
+      connection.createStatement().execute(insert)
     connection.close()
   }
 }
