@@ -6,7 +6,7 @@ case class ColumnStatistics (
                               columnType: String,
                               notMissingCount: Long,
                               rowsCount: Long,
-                              percentageNotMissing: Double,
+                              percentageNotMissing: Option[Double] = None,
                               min: Option[Double] = None,
                               max: Option[Double] = None,
                               avg: Option[Double] = None,

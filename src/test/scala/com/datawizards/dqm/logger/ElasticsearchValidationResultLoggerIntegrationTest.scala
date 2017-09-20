@@ -71,7 +71,7 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
         columnType = "StringType",
         notMissingCount = 10,
         rowsCount = 20,
-        percentageNotMissing = 50.0,
+        percentageNotMissing = Some(50.0),
         year = 2000,
         month = 1,
         day = 2
@@ -82,7 +82,7 @@ class ElasticsearchValidationResultLoggerIntegrationTest extends FunSuite with M
         columnType = "IntType",
         notMissingCount = 30,
         rowsCount = 50,
-        percentageNotMissing = 60.0,
+        percentageNotMissing = Some(60.0),
         year = 2000,
         month = 1,
         day = 2
