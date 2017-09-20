@@ -5,6 +5,8 @@ import java.util.Properties
 
 import com.datawizards.dqm.result._
 import com.datawizards.class2jdbc._
+import com.datawizards.dqm.DataQualityMonitor.getClass
+import org.apache.log4j.Logger
 
 /**
   * Validation results logger saving result in RDBMS
@@ -114,6 +116,8 @@ class DatabaseValidationResultLogger(
                                       invalidTableTrendsTableName: String
                                     ) extends ValidationResultLogger {
 
+  private val log = Logger.getLogger(getClass.getName)
+
   override protected def logInvalidRecords(invalidRecords: Seq[InvalidRecord]): Unit = {
     executeStatements(generateInserts(invalidRecords, invalidRecordsTableName))
   }
@@ -150,8 +154,10 @@ class DatabaseValidationResultLogger(
   private def executeStatements(statements: Traversable[String]): Unit = {
     Class.forName(driverClassName)
     val connection = DriverManager.getConnection(dbUrl, connectionProperties)
-    for(statement <- statements)
+    for(statement <- statements) {
+      log.info("Executing statement: " + statement)
       connection.createStatement().execute(statement)
+    }
     connection.close()
   }
 
