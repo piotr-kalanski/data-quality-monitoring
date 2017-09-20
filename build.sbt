@@ -2,7 +2,7 @@ name := "data-quality-monitoring"
 
 organization := "com.github.piotr-kalanski"
 
-version := "0.3.4"
+version := "0.3.5"
 
 scalaVersion := "2.11.8"
 
