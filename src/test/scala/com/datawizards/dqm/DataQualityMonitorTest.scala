@@ -80,7 +80,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           columnType = "StringType",
           notMissingCount = 2L,
           rowsCount = 3L,
-          percentageNotMissing = 2.0/3.0,
+          percentageNotMissing = Some(2.0/3.0),
           year = 2000,
           month = 1,
           day = 2
@@ -91,7 +91,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           columnType = "StringType",
           notMissingCount = 2L,
           rowsCount = 3L,
-          percentageNotMissing = 2.0/3.0,
+          percentageNotMissing = Some(2.0/3.0),
           year = 2000,
           month = 1,
           day = 2
@@ -102,7 +102,7 @@ class DataQualityMonitorTest extends FunSuite with Matchers {
           columnType = "StringType",
           notMissingCount = 2L,
           rowsCount = 3L,
-          percentageNotMissing = 2.0/3.0,
+          percentageNotMissing = Some(2.0/3.0),
           year = 2000,
           month = 1,
           day = 2

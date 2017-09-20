@@ -139,7 +139,7 @@ object DataValidator {
           columnType = f.dataType.toString,
           notMissingCount = notMissingCount,
           rowsCount = rowsCount,
-          percentageNotMissing = 1.0*notMissingCount/rowsCount,
+          percentageNotMissing = if(rowsCount == 0) None else Some(1.0*notMissingCount/rowsCount),
           min = min,
           max = max,
           avg = getAggregateValueIfNumericField(aggregate, avgForColumnName(columnName), columnType),
@@ -162,8 +162,6 @@ object DataValidator {
 
   private def isNumericType(columnType: DataType): Boolean =
     columnType.equals(IntegerType) || columnType.equals(LongType) || columnType.equals(DoubleType)
-
-  private def isNumericType(field: StructField): Boolean = isNumericType(field.dataType)
 
   private def castToDouble(v: Any): Double = v match {
     case d: Double => d
