@@ -153,7 +153,7 @@ object DataValidator {
   }
 
   private def getAggregateValueIfNumericField(aggregate: Row, columnName: String, columnType: DataType): Option[Double] =
-    if(isNumericType(columnType)) Some(castToDouble(aggregate.getAs[Double](columnName)))
+    if(isNumericType(columnType)) castToDouble(aggregate.getAs[Double](columnName))
     else None
 
   private def getColumnType(f: StructField): DataType = f.dataType
@@ -163,20 +163,20 @@ object DataValidator {
   private def isNumericType(columnType: DataType): Boolean =
     columnType.equals(IntegerType) || columnType.equals(LongType) || columnType.equals(DoubleType)
 
-  private def castToDouble(v: Any): Double = v match {
-    case d: Double => d
-    case b: Byte => b.toDouble
-    case s: Short => s.toDouble
-    case i: Int => i.toDouble
-    case j: Long => j.toDouble
-    case f: Float => f.toDouble
-    case Some(d: Double) => d
-    case Some(b: Byte) => b.toDouble
-    case Some(s: Short) => s.toDouble
-    case Some(i: Int) => i.toDouble
-    case Some(j: Long) => j.toDouble
-    case Some(f: Float) => f.toDouble
-    case _ => Double.NaN
+  private def castToDouble(v: Any): Option[Double] = v match {
+    case d: Double => Some(d)
+    case b: Byte => Some(b.toDouble)
+    case s: Short => Some(s.toDouble)
+    case i: Int => Some(i.toDouble)
+    case j: Long => Some(j.toDouble)
+    case f: Float => Some(f.toDouble)
+    case Some(d: Double) => Some(d)
+    case Some(b: Byte) => Some(b.toDouble)
+    case Some(s: Short) => Some(s.toDouble)
+    case Some(i: Int) => Some(i.toDouble)
+    case Some(j: Long) => Some(j.toDouble)
+    case Some(f: Float) => Some(f.toDouble)
+    case _ => None
   }
 
   private def calculateGroupByStatistics(df: DataFrame, context: ValidationContext, groups: Seq[GroupByConfiguration]): (Seq[GroupByStatistics], Seq[InvalidGroup]) = {
