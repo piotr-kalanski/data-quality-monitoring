@@ -2,7 +2,7 @@ name := "data-quality-monitoring"
 
 organization := "com.github.piotr-kalanski"
 
-version := "0.3.6"
+version := "0.3.7"
 
 scalaVersion := "2.11.8"
 
@@ -30,7 +30,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql" % "2.1.1",
   "com.github.piotr-kalanski" %% "es-client" % "0.2.1",
   "com.typesafe" % "config" % "1.3.0",
-  "com.github.piotr-kalanski" %% "class2sql" % "0.1.4",
+  "com.github.piotr-kalanski" %% "class2sql" % "0.1.5",
   "org.scalatest" %% "scalatest" % "2.2.6" % "test",
   "junit" % "junit" % "4.10" % "test",
   "com.h2database" % "h2" % "1.4.195" % "test"

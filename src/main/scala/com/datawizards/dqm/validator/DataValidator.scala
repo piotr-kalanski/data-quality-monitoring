@@ -53,10 +53,12 @@ object DataValidator {
           .map{fr =>
             val fieldValue = row.getAs[Any](field)
             val values = row.getValuesMap[Any](row.schema.fieldNames).mapValues(v => if(v == null) "null" else v)
+            val rowString = JSONObject(values).toString()
+            val maxSize = 1000
             InvalidRecord(
               tableName = context.tableName,
               columnName = field,
-              row = JSONObject(values).toString(),
+              row = if(rowString.size > maxSize) rowString.substring(0, maxSize) else rowString,
               value = if(fieldValue == null) "null" else fieldValue.toString,
               rule = fr.name,
               year = context.processingYear,
