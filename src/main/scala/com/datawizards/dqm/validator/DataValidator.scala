@@ -56,7 +56,7 @@ object DataValidator {
             InvalidRecord(
               tableName = context.tableName,
               columnName = field,
-              row = JSONObject(values).toString(),
+              row = JSONObject(values).toString().substring(0,1000),
               value = if(fieldValue == null) "null" else fieldValue.toString,
               rule = fr.name,
               year = context.processingYear,
